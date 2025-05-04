@@ -36,6 +36,13 @@ class Node {
     func render(context: RenderContext, start: Point, size: Size) {
 
     }
+
+    // Focus related
+    var focusable: Bool = false
+    var focused: Bool = false
+    func activate() {
+
+    }
 }
 extension Node: CustomStringConvertible {
     var description: String {

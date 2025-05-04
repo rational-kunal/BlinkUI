@@ -15,7 +15,13 @@ struct ExampleContainerView: View {
 
 struct ExampleContentView: View {
     var body: some View {
-        InnerView()
+        Button(
+            action: {
+                _ = []
+            },
+            label: {
+                Text("Button")
+            })
         Text("This")
         Text("Is")
         Text("A")

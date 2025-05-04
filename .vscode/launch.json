@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:BlinkUI}",
+      "name": "Debug BlinkUI",
+      "program": "${workspaceFolder:BlinkUI}/.build/debug/BlinkUI",
+      "preLaunchTask": "swift: Build Debug BlinkUI"
+    },
+    {
+      "type": "swift",
+      "request": "launch",
+      "args": [],
+      "cwd": "${workspaceFolder:BlinkUI}",
+      "name": "Release BlinkUI",
+      "program": "${workspaceFolder:BlinkUI}/.build/release/BlinkUI",
+      "preLaunchTask": "swift: Build Release BlinkUI"
+    }
+  ]
+}

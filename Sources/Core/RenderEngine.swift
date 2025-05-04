@@ -1,11 +1,14 @@
 class RenderEngine {
     let rootView: (any View)!
+    lazy var root: Node = ScreenNode(view: Screen())
     lazy var terminal: Terminal = Terminal()
     lazy var context: RenderContext = RenderContext(terminal: terminal)
-    lazy var viewHierarchyEngine: ViewHeirarchyEngine = ViewHeirarchyEngine(rootView: rootView)
 
     init(rootView: some View) {
         self.rootView = VStack { rootView }
+
+        // Build initial node
+        self.rootView.buildNode(self.root)
     }
 
     func updateAndRender() {
@@ -15,13 +18,13 @@ class RenderEngine {
             terminal.render()
         }
 
-        let size = viewHierarchyEngine.root.interinsizeIn(
+        let size = root.interinsizeIn(
             (width: terminal.canvasWidth, height: terminal.canvasHeight))
 
         let start = Point(
             x: (terminal.canvasWidth - size.width) / 2, y: (terminal.canvasHeight - size.height) / 2
         )
 
-        viewHierarchyEngine.root.render(context: context, start: start, size: size)
+        root.render(context: context, start: start, size: size)
     }
 }
