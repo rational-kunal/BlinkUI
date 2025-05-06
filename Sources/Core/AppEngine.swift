@@ -5,7 +5,7 @@ class AppEngine {
 
     let renderer: RenderEngine
     lazy var focusEngine = FocusEngine()
-    lazy var treeEngine: TreeEngine = TreeEngine(app: self.app)
+    lazy var treeEngine = TreeEngine(app: self.app)
 
     init(app: any App) {
         self.app = app
@@ -23,54 +23,12 @@ class AppEngine {
         }
 
         // Since currently we are not updating the tree -- this can be called only once
-        focusEngine.calculateFocusableNodes(fromNode: treeEngine.rootNode)
         while true {
+            focusEngine.calculateFocusableNodes(fromNode: treeEngine.rootNode)
             renderer.render(fromNode: treeEngine.rootNode)
 
             // TODO: Not good idea
             usleep(100_000)  // Sleep for 100ms
-        }
-    }
-}
-
-class TreeEngine {
-    let app: any App
-    lazy var rootNode = buildTree(fromRootView: app)
-
-    init(app: any App) {
-        self.app = app
-    }
-
-    func buildTree(fromRootView rootView: some App) -> Node {
-        // Special parent node
-        let screen = Screen { rootView }
-        guard let screenNode = screen.buildNode() else {
-            fatalError("Unable to crease a screenNode")
-        }
-
-        for childView in screen.childViews() {
-            _buildTree(fromView: childView, parentNode: screenNode)
-        }
-
-        return screenNode
-    }
-
-    private func _buildTree(fromView view: any View, parentNode: Node) {
-        // The view can be custom container view declared by client or a leaf view which can be node builder
-        // If its custom view just call buildTree on the body
-        guard let nodeBuilder = view as? NodeBuilder else {
-            _buildTree(fromView: view.body, parentNode: parentNode)
-            return
-        }
-
-        var nextParentNode = parentNode
-        if let node = nodeBuilder.buildNode() {
-            parentNode.addChild(node)
-            nextParentNode = node
-        }
-
-        for childView in nodeBuilder.childViews() {
-            _buildTree(fromView: childView, parentNode: nextParentNode)
         }
     }
 }
@@ -118,8 +76,13 @@ class FocusEngine {
 
     // Do this when render tree is complete
     func calculateFocusableNodes(fromNode: Node) {
+        let previouslyFocusedViewId = focusedNode?.viewIdentifier
         purge()
         _calculateFocusableNodes(fromNode: fromNode)
+        let focusedNodeFromNewTree = focusableNodes.first {
+            $0.viewIdentifier == previouslyFocusedViewId
+        }
+        self.focusedNode = focusedNodeFromNewTree
     }
 
     // Doing DFS which is not idea

@@ -14,18 +14,16 @@ struct ExampleContainerView: View {
 }
 
 struct ExampleContentView: View {
+    @State var counter = 0
     var body: some View {
         Button(
             action: {
-                _ = []
+                counter += 1
             },
             label: {
                 Text("Button")
             })
-        Text("This")
-        Text("Is")
-        Text("A")
-        Text("VStack")
+        Text("Counter: \(counter)")
     }
 }
 

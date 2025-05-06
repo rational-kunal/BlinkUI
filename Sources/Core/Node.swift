@@ -18,6 +18,7 @@ protocol NodeRenderer {
 }
 
 class Node {
+    var viewIdentifier: ViewIdentifier = ViewIdentifier()
     var view: any View
     var children: [Node] = []
 
@@ -46,7 +47,7 @@ class Node {
 }
 extension Node: CustomStringConvertible {
     var description: String {
-        var result = "Node (\(view))\n"
+        var result = "Node (View: \(view), ViewIdentifier: \(viewIdentifier))\n"
         for child in children {
             let childDescription = child.description
                 .split(separator: "\n")
