@@ -5,17 +5,17 @@ public struct VStack<Content>: View where Content: View {
         self.content = content()
     }
 }
+
 extension VStack: NodeBuilder {
-    func buildNode(_ node: Node) {
-        let selfNode = VStackNode(view: self)
-        node.addChild(selfNode)
-        if let content = content as? NodeBuilder {
-            content.buildNode(selfNode)
-        } else {
-            (content as any View).body.buildNode(selfNode)
-        }
+    func buildNode() -> Node? {
+        return VStackNode(view: self)
+    }
+
+    func childViews() -> [any View] {
+        return [content]
     }
 }
+
 class VStackNode<Content: View>: Node {
     var vStackView: VStack<Content> {
         guard let view = view as? VStack<Content> else {

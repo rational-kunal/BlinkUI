@@ -7,17 +7,17 @@ public struct Button<Label>: View where Label: View {
         self.label = label()
     }
 }
+
 extension Button: NodeBuilder {
-    func buildNode(_ node: Node) {
-        let selfNode = ButtonNode(view: self)
-        node.addChild(selfNode)
-        if let label = label as? NodeBuilder {
-            label.buildNode(selfNode)
-        } else {
-            (label as any View).body.buildNode(selfNode)
-        }
+    func buildNode() -> Node? {
+        return ButtonNode(view: self)
+    }
+
+    func childViews() -> [any View] {
+        return [label]
     }
 }
+
 class ButtonNode<Label: View>: Node {
     var buttonView: Button<Label> {
         guard let view = view as? Button<Label> else {

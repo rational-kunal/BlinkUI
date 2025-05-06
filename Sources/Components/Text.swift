@@ -7,10 +7,11 @@ public struct Text: View {
 }
 
 extension Text: NodeBuilder {
-    func buildNode(_ node: Node) {
-        node.addChild(TextNode(view: self))
+    func buildNode() -> Node? {
+        TextNode(view: self)
     }
 }
+
 class TextNode: Node {
     var textView: Text {
         guard let textView = view as? Text else {

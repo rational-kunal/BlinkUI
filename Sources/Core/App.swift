@@ -1,4 +1,3 @@
-public protocol App {
-    associatedtype Body: View
+public protocol App: View {
     @ViewBuilder var body: Self.Body { get }
 }

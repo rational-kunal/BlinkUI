@@ -1,10 +1,21 @@
-struct Screen: View {
-}
-extension Screen: NodeBuilder {
-    func buildNode(_ node: Node) {
-        // Don't add node here, it should be added by the ViewHeirarchyEngine
+struct Screen<Content>: View where Content: App {
+    let content: VStack<Content>
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = VStack { content() }
     }
 }
+
+extension Screen: NodeBuilder {
+    func buildNode() -> Node? {
+        ScreenNode(view: self)
+    }
+
+    func childViews() -> [any View] {
+        return [content]
+    }
+}
+
 class ScreenNode: Node {
     override func interinsizeIn(_ size: Size) -> Size {
         assert(self.children.count == 1)

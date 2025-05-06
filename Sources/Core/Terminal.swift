@@ -72,7 +72,7 @@ private struct TerminalHelper {
     // Create blank 2d buffer of blank characters
     static func makeCanvas() -> [[Character]] {
         let (width, height) = windowSize()
-        // let (width, height) = (100, 30)
+        // let (width, height) = (10, 5)
         return Array(repeating: Array(repeating: " ", count: width), count: height)
     }
 

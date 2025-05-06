@@ -1,20 +1,20 @@
 protocol NodeBuilder {
-    func buildNode(_ node: Node)
+    // Build node for the self
+    // If passed nil, then child will have have this nodes parent
+    func buildNode() -> Node?
+
+    // Return array of child view
+    // The algorithm will then build there nodes and add it to child list of this no
+    func childViews() -> [any View]
+}
+extension NodeBuilder {
+    func buildNode() -> Node? { nil }
+    func childViews() -> [any View] { [] }
 }
 
 protocol NodeRenderer {
     func intrinsicSizeIn(_ size: Size, childNodes: [Node]) -> Size
     func render(context: RenderContext, start: Point, size: Size)
-}
-
-extension View {
-    func buildNode(_ node: Node) {
-        if let self = self as? NodeBuilder {
-            self.buildNode(node)
-        } else {
-            self.body.buildNode(node)
-        }
-    }
 }
 
 class Node {
@@ -46,6 +46,14 @@ class Node {
 }
 extension Node: CustomStringConvertible {
     var description: String {
-        return "Node(\(view)) \(children)"
+        var result = "Node (\(view))\n"
+        for child in children {
+            let childDescription = child.description
+                .split(separator: "\n")
+                .map { "  \($0)" }
+                .joined(separator: "\n")
+            result += "\(childDescription)\n"
+        }
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
