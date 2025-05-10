@@ -1,36 +1,10 @@
 import Foundation
+import os
 
-// A simple view identifier which has locations to identifify the view uniquely
-// Idea is that the ViewIdentifier will be identical accross render time
-struct ViewIdentifier {
-    var positions: [Int] = []
-
-    func withPosition(_ position: Int) -> ViewIdentifier {
-        return ViewIdentifier(positions: positions + [position])
-    }
-
-    func withState(_ stateName: String) -> StateIdentifier {
-        return StateIdentifier(viewIdentifier: self, stateIdentifier: stateName)
-    }
-}
-extension ViewIdentifier: Hashable {}
-extension ViewIdentifier: CustomStringConvertible {
-    var description: String {
-        return positions.map(String.init).joined(separator: ".")
-    }
-}
-struct StateIdentifier {
-    var viewIdentifier: ViewIdentifier
-    var stateIdentifier: String
-}
-extension StateIdentifier: Hashable {}
-extension StateIdentifier: CustomStringConvertible {
-    var description: String {
-        return "\(viewIdentifier)->\(stateIdentifier)"
-    }
-}
+private let logger = Logger(subsystem: "com.rational.blinkui", category: "TreeEngine")
 
 class StateManager {
+    // TODO: Store it in key:ViewIdentifier with [StateIdnetifer: Value]
     var stateStorage = [StateIdentifier: Any]()
     let nodeStateDidUpdate: (ViewIdentifier) -> Void
     init(nodeStateDidUpdate: @escaping (ViewIdentifier) -> Void) {
@@ -47,11 +21,26 @@ class StateManager {
             nodeStateDidUpdate(key.viewIdentifier)
         }
     }
+
+    func removeStateStorage(forViewIdentifier: ViewIdentifier) {
+        // Too costly
+        let statesToRemove = stateStorage.compactMap { (stateIdentifier, _) in
+            // Check if
+            if stateIdentifier.viewIdentifier.isDescendent(ofViewIdentifier: forViewIdentifier) {
+                return stateIdentifier
+            }
+            return nil
+        }
+        for stateToRemove in statesToRemove {
+            stateStorage.remove(at: stateStorage.index(forKey: stateToRemove)!)
+        }
+    }
 }
 
 class TreeEngine {
     let app: any App
     lazy var rootNode = buildTree(fromRootView: app)
+    var renderableRootNode: RenderableNode { rootNode as! RenderableNode }
     lazy var stateManager = StateManager(nodeStateDidUpdate: { [weak self] (viewIdentifier) in
         DispatchQueue.global(qos: .userInitiated).async {
             guard let self else {
@@ -98,21 +87,25 @@ class TreeEngine {
 
         let nodeBuilder =
             (view as? NodeBuilder) ?? ClientDefinedViewNodeBuilder(clientDefinedView: view)
-
-        var nextParentNode = parentNode
-        if let node = nodeBuilder.buildNode() {
-            parentNode.addChild(node)
-            mapOfNodes[currentViewIdentifier] = node
-            node.viewIdentifier = currentViewIdentifier
-
-            nextParentNode = node
+        guard let node = nodeBuilder.buildNode() else {
+            fatalError("Unable to build node for \(view)")
         }
+
+        node.viewIdentifier = currentViewIdentifier  // TODO: Add this code in node builder
+        parentNode.addChild(node)
+        // Node has changes so purge the sub tree
+        if let cachedNode = mapOfNodes[currentViewIdentifier], cachedNode != node {
+            purgeSubTree(fromNode: cachedNode)
+        }
+
+        mapOfNodes[currentViewIdentifier] = node
+
         populateState(fromView: view, viewIdentifier: currentViewIdentifier)
 
         for (position, childView) in nodeBuilder.childViews().enumerated() {
             let nextViewIdentifier = currentViewIdentifier.withPosition(position)
             _buildTree(
-                fromView: childView, parentNode: nextParentNode,
+                fromView: childView, parentNode: node,
                 currentViewIdentifier: nextViewIdentifier)
         }
     }
@@ -129,15 +122,20 @@ class TreeEngine {
             state.stateReference.stateIdentifier = viewIdentifier.withState(label ?? "")
         }
     }
-}
 
-struct ClientDefinedViewNodeBuilder: NodeBuilder {
-    let clientDefinedView: any View
-    func buildNode() -> Node? {
-        nil
-    }
-    func childViews() -> [any View] {
-        return [clientDefinedView.body]
+    // Purge subtree from node
+    // The node has changed so purge the whole tree
+    // - Remove the node from mapOfNodes
+    // - Remove the state related to that node
+    // - Call same on children
+    private func purgeSubTree(fromNode node: Node) {
+        if let indexToPurge = mapOfNodes.index(forKey: node.viewIdentifier) {
+            mapOfNodes.remove(at: indexToPurge)
+            stateManager.removeStateStorage(forViewIdentifier: node.viewIdentifier)
+        }
+
+        node.children.forEach { child in
+            purgeSubTree(fromNode: child)
+        }
     }
 }
-// TODO: ClientDefinedViewNode

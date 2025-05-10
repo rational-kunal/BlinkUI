@@ -13,11 +13,6 @@ public struct TupleView<T>: View {
 }
 
 extension TupleView: NodeBuilder {
-    func buildNode() -> Node? {
-        // This view itself is not that much imp so attach children directly to parent
-        return nil
-    }
-
     func childViews() -> [any View] {
         let mirror = Mirror(reflecting: content)
         return mirror.children.compactMap { (label, child) in

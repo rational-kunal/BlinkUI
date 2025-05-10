@@ -16,13 +16,15 @@ extension Screen: NodeBuilder {
     }
 }
 
-class ScreenNode: Node {
-    override func interinsizeIn(_ size: Size) -> Size {
-        assert(self.children.count == 1)
-        return self.children.first?.interinsizeIn(size) ?? super.interinsizeIn(size)
+class ScreenNode: Node {}
+extension ScreenNode: RenderableNode {
+    func proposeViewSize(inSize: Size) -> Size {
+        assert(self.renderableChildren.count == 1)
+        return self.renderableChildren.first?.proposeViewSize(inSize: inSize) ?? (0, 0)
     }
-    override func render(context: RenderContext, start: Point, size: Size) {
-        assert(self.children.count == 1)
-        self.children.first?.render(context: context, start: start, size: size)
+
+    func render(context: RenderContext, start: Point, size: Size) {
+        assert(self.renderableChildren.count == 1)
+        self.renderableChildren.first?.render(context: context, start: start, size: size)
     }
 }

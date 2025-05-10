@@ -7,14 +7,13 @@ public struct Button<Label>: View where Label: View {
         self.label = label()
     }
 }
-
 extension Button: NodeBuilder {
     func buildNode() -> Node? {
         return ButtonNode(view: self)
     }
 
     func childViews() -> [any View] {
-        return [label]
+        return [VStack { label }]
     }
 }
 
@@ -31,16 +30,21 @@ class ButtonNode<Label: View>: Node {
         focusable = true
     }
 
-    override func interinsizeIn(_ size: Size) -> Size {
-        assert(children.count == 1)
-        let labelNode = children[0]
-        let labelSize = labelNode.interinsizeIn(size)
+    override func activate() {
+        buttonView.action()
+    }
+}
+extension ButtonNode: RenderableNode {
+    func proposeViewSize(inSize: Size) -> Size {
+        assert(renderableChildren.count == 1)
+        let labelNode = renderableChildren[0]
+        let labelSize = labelNode.proposeViewSize(inSize: inSize)
 
         // Add 1 for borders
         return (width: labelSize.width + 2, height: labelSize.height + 2)
     }
 
-    override func render(context: RenderContext, start: Point, size: Size) {
+    func render(context: RenderContext, start: Point, size: Size) {
         // TODO: Make this more flexible ???
         // THe focusable rendering should not be responsibility of the element
         // Render border
@@ -60,12 +64,8 @@ class ButtonNode<Label: View>: Node {
         }
 
         // Render label
-        self.children.first?.render(
+        self.renderableChildren.first?.render(
             context: context, start: (start.x + 1, start.y + 1),
             size: (size.width - 2, size.height - 2))
-    }
-
-    override func activate() {
-        buttonView.action()
     }
 }

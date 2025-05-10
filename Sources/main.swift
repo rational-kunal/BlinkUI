@@ -2,7 +2,7 @@ import os
 
 struct Example: App {
     var body: some View {
-        ExampleContainerView()
+        // ExampleContainerView()
         ExampleContainerView()
     }
 }
@@ -14,16 +14,46 @@ struct ExampleContainerView: View {
 }
 
 struct ExampleContentView: View {
-    @State var counter = 0
+    @State var thisOrThat: Bool = false
     var body: some View {
         Button(
             action: {
-                counter += 1
+                thisOrThat.toggle()
             },
             label: {
                 Text("Button")
             })
-        Text("Counter: \(counter)")
+        if thisOrThat {
+            ThisView()
+        } else {
+            ThatView()
+        }
+    }
+}
+
+struct ThisView: View {
+    @State var counter: Int = 0
+
+    var body: some View {
+        Button(
+            action: { counter += 1 },
+            label: {
+                Text("This")
+            })
+        Text("\(counter)")
+    }
+}
+
+struct ThatView: View {
+    @State var counter: Int = 0
+
+    var body: some View {
+        Button(
+            action: { counter += 1 },
+            label: {
+                Text("That")
+            })
+        Text("\(counter)")
     }
 }
 

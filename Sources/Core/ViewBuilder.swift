@@ -1,5 +1,19 @@
 @resultBuilder
 struct ViewBuilder {
+    static func buildEither<T, F>(first component: T) -> ConditionalView<T, F>
+    where T: View, F: View {
+        ConditionalView<T, F>.truthy {
+            component
+        }
+    }
+
+    static func buildEither<T, F>(second component: F) -> ConditionalView<T, F>
+    where T: View, F: View {
+        ConditionalView<T, F>.falsy {
+            component
+        }
+    }
+
     public static func buildExpression<Content>(_ content: Content) -> Content where Content: View {
         content
     }

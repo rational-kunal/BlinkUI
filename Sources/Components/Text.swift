@@ -23,8 +23,9 @@ class TextNode: Node {
     init(view: Text) {
         super.init(view: view)
     }
-
-    override func interinsizeIn(_ size: Size) -> Size {
+}
+extension TextNode: RenderableNode {
+    func proposeViewSize(inSize: Size) -> Size {
         // For now the width is the length of the text
         // TODO: Update this logic for edge cases
         // - Width is smaller than the text length
@@ -33,7 +34,7 @@ class TextNode: Node {
         return (width: textView.text.count, height: 1)
     }
 
-    override func render(context: RenderContext, start: Point, size: Size) {
+    func render(context: RenderContext, start: Point, size: Size) {
         // Text should be in the center so add the required padding in the start
         let padding = (size.width - textView.text.count) / 2
         var x = start.x

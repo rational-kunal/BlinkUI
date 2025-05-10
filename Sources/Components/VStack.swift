@@ -26,25 +26,25 @@ class VStackNode<Content: View>: Node {
 
     init(view: VStack<Content>) {
         super.init(view: view)
-
     }
-
-    override func interinsizeIn(_ size: Size) -> Size {
+}
+extension VStackNode: RenderableNode {
+    func proposeViewSize(inSize: Size) -> Size {
         var height = 0
         var width = 0
         // Here height can exceed
-        for child in children {
-            let childSize = child.interinsizeIn(size)
+        for child in self.renderableChildren {
+            let childSize = child.proposeViewSize(inSize: inSize)
             height += childSize.height
             width = max(width, childSize.width)
         }
         return (width: width, height: height)
     }
 
-    override func render(context: RenderContext, start: Point, size: Size) {
+    func render(context: RenderContext, start: Point, size: Size) {
         var y = start.y
-        for child in children {
-            let childIntrinsicSize = child.interinsizeIn(size)
+        for child in self.renderableChildren {
+            let childIntrinsicSize = child.proposeViewSize(inSize: size)
             let childStart: Point = (
                 x: start.x + (size.width - childIntrinsicSize.width) / 2,
                 y: y/** + (size.height - childIntrinsicSize.height) / 2 **/
