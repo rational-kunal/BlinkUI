@@ -110,6 +110,16 @@ class TreeEngine {
         }
     }
 
+    private func __printViewTree(fromView view: any View, level: Int) {
+        let indentation = String(repeating: "  ", count: level)
+        print("\(indentation)- \(type(of:view))")
+
+        let children = (view as? NodeBuilder)?.childViews() ?? [view.body]
+        for child in children {
+            __printViewTree(fromView: child, level: level + 1)
+        }
+    }
+
     // Extract State from a given View
     private func populateState(fromView view: any View, viewIdentifier: ViewIdentifier) {
         let mirror = Mirror(reflecting: view)

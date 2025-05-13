@@ -9,21 +9,24 @@ extension View where Body == Never {
 extension Never: View {}
 
 public protocol ViewModifier {
+    typealias Content = AnyView
     associatedtype Body: View
-    func body(content: ModifiedContent<Self>) -> Body
+
+    @ViewBuilder func body(content: Content) -> Body
 }
 
-public struct ModifiedContent<Modifier: ViewModifier>: View {
-    let content: any View
+public struct ModifiedContent<Content, Modifier>: View
+where Modifier: ViewModifier, Content: View {
+    let content: Content
     let modifier: Modifier
 
     public var body: some View {
-        modifier.body(content: self)
+        modifier.body(content: AnyView { content })
     }
 }
 
 extension View {
-    func modifier<M: ViewModifier>(_ modifier: M) -> some View {
+    func modifier<M: ViewModifier>(_ modifier: M) -> ModifiedContent<Self, M> {
         ModifiedContent(content: self, modifier: modifier)
     }
 }

@@ -27,9 +27,8 @@ struct ViewBuilder {
     }
 
     public static func buildBlock<each Content>(_ content: repeat each Content) -> TupleView<
-        (repeat each Content)
-    >
-    where repeat each Content: View {
-        return TupleView<(repeat each Content)>((repeat each content))
+        repeat each Content
+    > where repeat each Content: View {
+        TupleView((repeat each content))
     }
 }

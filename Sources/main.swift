@@ -4,6 +4,7 @@ struct Example: App {
     var body: some View {
         // ExampleContainerView()
         ExampleContainerView()
+            .frame(width: .infinity, height: .infinity, alignment: .topLeading)
     }
 }
 
@@ -24,7 +25,7 @@ struct ExampleContentView: View {
                 Text("Button")
             })
         if thisOrThat {
-            ThisView()
+            ThisView().padding()
         } else {
             ThatView()
         }

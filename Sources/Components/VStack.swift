@@ -1,7 +1,9 @@
 public struct VStack<Content>: View where Content: View {
     let content: Content
+    let alignment: HorizontalAlignment
 
-    init(@ViewBuilder content: () -> Content) {
+    public init(alignment: HorizontalAlignment = .center, @ViewBuilder content: () -> Content) {
+        self.alignment = alignment
         self.content = content()
     }
 }
@@ -28,11 +30,11 @@ class VStackNode<Content: View>: Node {
         super.init(view: view)
     }
 }
+
 extension VStackNode: RenderableNode {
     func proposeViewSize(inSize: Size) -> Size {
         var height = 0
         var width = 0
-        // Here height can exceed
         for child in self.renderableChildren {
             let childSize = child.proposeViewSize(inSize: inSize)
             height += childSize.height
@@ -45,9 +47,20 @@ extension VStackNode: RenderableNode {
         var y = start.y
         for child in self.renderableChildren {
             let childIntrinsicSize = child.proposeViewSize(inSize: size)
+            let childStartX: Int =
+                switch vStackView.alignment {
+                case .leading:
+                    start.x
+                case .center:
+                    start.x + (size.width - childIntrinsicSize.width) / 2
+                case .trailing:
+                    start.x + (size.width - childIntrinsicSize.width)
+                default:
+                    start.x
+                }
             let childStart: Point = (
-                x: start.x + (size.width - childIntrinsicSize.width) / 2,
-                y: y/** + (size.height - childIntrinsicSize.height) / 2 **/
+                x: childStartX,
+                y: y
             )
             child.render(context: context, start: childStart, size: childIntrinsicSize)
             y += childIntrinsicSize.height
