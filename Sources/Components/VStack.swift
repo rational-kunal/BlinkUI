@@ -1,9 +1,14 @@
 public struct VStack<Content>: View where Content: View {
     let content: Content
     let alignment: HorizontalAlignment
+    let spacing: Int
 
-    public init(alignment: HorizontalAlignment = .center, @ViewBuilder content: () -> Content) {
+    public init(
+        alignment: HorizontalAlignment = .center, spacing: Int = 0,
+        @ViewBuilder content: () -> Content
+    ) {
         self.alignment = alignment
+        self.spacing = spacing
         self.content = content()
     }
 }
@@ -33,20 +38,33 @@ class VStackNode<Content: View>: Node {
 
 extension VStackNode: RenderableNode {
     func proposeViewSize(inSize: Size) -> Size {
+        guard renderableChildren.count > 0 else {
+            // No elements to render
+            return (0, 0)
+        }
+
         var height = 0
         var width = 0
-        for child in self.renderableChildren {
-            let childSize = child.proposeViewSize(inSize: inSize)
-            height += childSize.height
+        var availableHeight = inSize.height
+
+        for (index, child) in self.renderableChildren.enumerated() {
+            let spacing = index < renderableChildren.count - 1 ? vStackView.spacing : 0
+            let childSize = child.proposeViewSize(
+                inSize: (width: inSize.width, height: availableHeight))
+            height += childSize.height + spacing
             width = max(width, childSize.width)
+            availableHeight -= childSize.height + spacing
         }
         return (width: width, height: height)
     }
 
     func render(context: RenderContext, start: Point, size: Size) {
         var y = start.y
+        var availableHeight = size.height
+
         for child in self.renderableChildren {
-            let childIntrinsicSize = child.proposeViewSize(inSize: size)
+            let childIntrinsicSize = child.proposeViewSize(
+                inSize: (width: size.width, height: availableHeight))
             let childStartX: Int =
                 switch vStackView.alignment {
                 case .leading:
@@ -63,7 +81,12 @@ extension VStackNode: RenderableNode {
                 y: y
             )
             child.render(context: context, start: childStart, size: childIntrinsicSize)
-            y += childIntrinsicSize.height
+            y += childIntrinsicSize.height + vStackView.spacing
+            availableHeight -= childIntrinsicSize.height + vStackView.spacing
+
+            if availableHeight <= 0 {
+                break  // Stop rendering if no more space is available
+            }
         }
     }
 }

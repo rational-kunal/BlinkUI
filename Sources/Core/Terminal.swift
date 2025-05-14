@@ -57,6 +57,8 @@ extension Terminal {
 
         if readBytes == 1 {
             return String(UnicodeScalar(buffer[0]))
+        } else if readBytes > 1 {
+            return buffer.prefix(readBytes).map { String(UnicodeScalar($0)) }.joined()
         }
         return nil
     }

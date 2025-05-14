@@ -69,7 +69,7 @@ extension FrameNode: RenderableNode {
 
         // Calculate the alignment offset
         let childSize = renderableChild.proposeViewSize(inSize: size)
-        let offset = calculateAlignmentOffset(
+        let offset = AlignmentUtility.calculateAlignmentOffset(
             parentSize: size, childSize: childSize, alignment: frameView.alignment)
 
         // Render the child with the given size and alignment offset
@@ -77,8 +77,10 @@ extension FrameNode: RenderableNode {
             context: context, start: Point(x: start.x + offset.x, y: start.y + offset.y),
             size: childSize)
     }
+}
 
-    private func calculateAlignmentOffset(parentSize: Size, childSize: Size, alignment: Alignment)
+struct AlignmentUtility {
+    static func calculateAlignmentOffset(parentSize: Size, childSize: Size, alignment: Alignment)
         -> Point
     {
         let xOffset: Int

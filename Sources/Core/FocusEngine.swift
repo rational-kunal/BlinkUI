@@ -15,6 +15,8 @@ class FocusEngine {
             jumpToNextFocusableNode()
         } else if key == " " {
             activateFocusedNode()
+        } else if key == "\u{1B}[Z" {  // "shift + tab"
+            jumpToPreviousFocusableNode()
         }
     }
 
@@ -26,6 +28,18 @@ class FocusEngine {
             focusedNode = focusableNodes[nextIndex]
         } else {
             focusedNode = focusableNodes.first
+        }
+    }
+
+    private func jumpToPreviousFocusableNode() {
+        guard !focusableNodes.isEmpty else { return }
+
+        if let currentFocusedIndex = focusableNodes.firstIndex(where: { $0 === focusedNode }) {
+            let previousIndex =
+                (currentFocusedIndex - 1 + focusableNodes.count) % focusableNodes.count
+            focusedNode = focusableNodes[previousIndex]
+        } else {
+            focusedNode = focusableNodes.last
         }
     }
 
