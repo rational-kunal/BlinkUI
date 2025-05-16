@@ -22,8 +22,8 @@ private struct FrameView<Content>: View where Content: View {
 }
 
 extension FrameView: NodeBuilder {
-    func buildNode() -> Node? {
-        FrameNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        FrameNode(view: self, viewIdentifier: viewIdentifier)
     }
 
     func childViews() -> [any View] {
@@ -39,8 +39,8 @@ private class FrameNode<Content>: Node where Content: View {
         return frameView
     }
 
-    init(view: FrameView<Content>) {
-        super.init(view: view)
+    init(view: FrameView<Content>, viewIdentifier: ViewIdentifier) {
+        super.init(view: view, viewIdentifier: viewIdentifier)
     }
 }
 

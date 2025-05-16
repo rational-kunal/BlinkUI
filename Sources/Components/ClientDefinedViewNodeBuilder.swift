@@ -1,7 +1,7 @@
 struct ClientDefinedViewNodeBuilder: NodeBuilder {
     let clientDefinedView: any View
-    func buildNode() -> Node? {
-        return Node(view: clientDefinedView)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        return Node(view: clientDefinedView, viewIdentifier: viewIdentifier)
     }
     func childViews() -> [any View] {
         return [clientDefinedView.body]

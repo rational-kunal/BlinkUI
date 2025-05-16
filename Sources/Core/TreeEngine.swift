@@ -3,6 +3,7 @@ import os
 
 private let logger = Logger(subsystem: "com.rational.blinkui", category: "TreeEngine")
 
+// Storing state separate from node because state should persist while node creation
 class StateManager {
     // TODO: Store it in key:ViewIdentifier with [StateIdnetifer: Value]
     var stateStorage = [StateIdentifier: Any]()
@@ -61,14 +62,11 @@ class TreeEngine {
 
     func buildTree(fromRootView rootView: some App) -> Node {
         // Special parent node
-        let screen = Screen { rootView }
-        guard let screenNode = screen.buildNode() else {
-            fatalError("Unable to crease a screenNode")
-        }
-
         let viewIdentifier = ViewIdentifier().withPosition(0)
+        let screen = Screen { rootView }
+        let screenNode = screen.buildNode(viewIdentifier: viewIdentifier)
+
         mapOfNodes[viewIdentifier] = screenNode
-        screenNode.viewIdentifier = viewIdentifier
 
         for (position, childView) in screen.childViews().enumerated() {
             let nextViewIdentifier = viewIdentifier.withPosition(position)
@@ -87,11 +85,8 @@ class TreeEngine {
 
         let nodeBuilder =
             (view as? NodeBuilder) ?? ClientDefinedViewNodeBuilder(clientDefinedView: view)
-        guard let node = nodeBuilder.buildNode() else {
-            fatalError("Unable to build node for \(view)")
-        }
+        let node = nodeBuilder.buildNode(viewIdentifier: currentViewIdentifier)
 
-        node.viewIdentifier = currentViewIdentifier  // TODO: Add this code in node builder
         parentNode.addChild(node)
         // Node has changes so purge the sub tree
         if let cachedNode = mapOfNodes[currentViewIdentifier], cachedNode != node {
@@ -100,7 +95,7 @@ class TreeEngine {
 
         mapOfNodes[currentViewIdentifier] = node
 
-        populateState(fromView: view, viewIdentifier: currentViewIdentifier)
+        populateInternals(fromView: view, node: node)
 
         for (position, childView) in nodeBuilder.childViews().enumerated() {
             let nextViewIdentifier = currentViewIdentifier.withPosition(position)
@@ -120,16 +115,16 @@ class TreeEngine {
         }
     }
 
-    // Extract State from a given View
-    private func populateState(fromView view: any View, viewIdentifier: ViewIdentifier) {
+    // Populates State and Environment wrappers
+    private func populateInternals(fromView view: any View, node: Node) {
         let mirror = Mirror(reflecting: view)
         mirror.children.forEach { (label, child) in
-            guard let state = child as? AnyState else {
-                return
+            if let state = child as? AnyState {
+                state.stateReference.stateManager = self.stateManager
+                state.stateReference.stateIdentifier = node.viewIdentifier.withState(label ?? "")
+            } else if let environment = child as? AnyEnvironment {
+                environment.environmentReference.environmentProvider = node
             }
-
-            state.stateReference.stateManager = self.stateManager
-            state.stateReference.stateIdentifier = viewIdentifier.withState(label ?? "")
         }
     }
 

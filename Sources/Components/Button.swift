@@ -8,8 +8,8 @@ public struct Button<Label>: View where Label: View {
     }
 }
 extension Button: NodeBuilder {
-    func buildNode() -> Node? {
-        return ButtonNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        return ButtonNode(view: self, viewIdentifier: viewIdentifier)
     }
 
     func childViews() -> [any View] {
@@ -25,8 +25,8 @@ class ButtonNode<Label: View>: Node {
         return view
     }
 
-    init(view: Button<Label>) {
-        super.init(view: view)
+    init(view: Button<Label>, viewIdentifier: ViewIdentifier) {
+        super.init(view: view, viewIdentifier: viewIdentifier)
         focusable = true
     }
 

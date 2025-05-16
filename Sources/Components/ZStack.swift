@@ -12,8 +12,8 @@ public struct ZStack<Content>: View where Content: View {
 }
 
 extension ZStack: NodeBuilder {
-    func buildNode() -> Node? {
-        return ZStackNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        return ZStackNode(view: self, viewIdentifier: viewIdentifier)
     }
 
     func childViews() -> [any View] {
@@ -29,8 +29,8 @@ class ZStackNode<Content: View>: Node {
         return view
     }
 
-    init(view: ZStack<Content>) {
-        super.init(view: view)
+    init(view: ZStack<Content>, viewIdentifier: ViewIdentifier) {
+        super.init(view: view, viewIdentifier: viewIdentifier)
     }
 }
 

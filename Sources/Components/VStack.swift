@@ -14,8 +14,8 @@ public struct VStack<Content>: View where Content: View {
 }
 
 extension VStack: NodeBuilder {
-    func buildNode() -> Node? {
-        return VStackNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        return VStackNode(view: self, viewIdentifier: viewIdentifier)
     }
 
     func childViews() -> [any View] {
@@ -31,8 +31,8 @@ class VStackNode<Content: View>: Node {
         return view
     }
 
-    init(view: VStack<Content>) {
-        super.init(view: view)
+    init(view: VStack<Content>, viewIdentifier: ViewIdentifier) {
+        super.init(view: view, viewIdentifier: viewIdentifier)
     }
 }
 

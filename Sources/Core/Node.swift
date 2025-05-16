@@ -1,20 +1,16 @@
 protocol NodeBuilder {
-    // Build node for the self
-    // If passed nil, then child will have have this nodes parent
-    func buildNode() -> Node?
+    // Build node for the view
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node
 
-    // Return array of child view
-    // The algorithm will then build there nodes and add it to child list of this no
+    // Return array of child view of this node / view
     func childViews() -> [any View]
 }
-extension NodeBuilder {
-    func buildNode() -> Node? { nil }
-    func childViews() -> [any View] { [] }
-}
+
 extension NodeBuilder where Self: View {
-    func buildNode() -> Node? {
-        return Node(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        return Node(view: self, viewIdentifier: viewIdentifier)
     }
+    func childViews() -> [any View] { [] }
 }
 
 protocol RenderableNode {
@@ -22,8 +18,14 @@ protocol RenderableNode {
     func render(context: RenderContext, start: Point, size: Size)
 }
 
-class Node {
-    var viewIdentifier: ViewIdentifier = ViewIdentifier()
+protocol EnvironmentProvidable: AnyObject {
+    // Gets the environment values for the given node
+    func getEnvironmentValues() -> EnvironmentValues
+}
+
+class Node: EnvironmentProvidable {
+    weak var parent: Node?
+    let viewIdentifier: ViewIdentifier
     var view: any View
     var children: [Node] = []
     var renderableChildren: [RenderableNode] {
@@ -36,11 +38,15 @@ class Node {
         }
     }
 
-    init(view: any View) {
+    var environmentValues: EnvironmentValues?
+
+    init(view: any View, viewIdentifier: ViewIdentifier) {
         self.view = view
+        self.viewIdentifier = viewIdentifier
     }
 
     func addChild(_ child: Node) {
+        child.parent = self
         children.append(child)
     }
 
@@ -49,6 +55,15 @@ class Node {
     var focused: Bool = false
     func activate() {
 
+    }
+
+    func getEnvironmentValues() -> EnvironmentValues {
+        if let environmentValues = environmentValues ?? parent?.getEnvironmentValues() {
+            return environmentValues
+        }
+
+        assertionFailure("Failed to get environment values")
+        return EnvironmentValues()
     }
 }
 

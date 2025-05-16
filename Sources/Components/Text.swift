@@ -7,8 +7,12 @@ public struct Text: View {
 }
 
 extension Text: NodeBuilder {
-    func buildNode() -> Node? {
-        TextNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        TextNode(view: self, viewIdentifier: viewIdentifier)
+    }
+
+    func childViews() -> [any View] {
+        return []
     }
 }
 
@@ -20,8 +24,8 @@ class TextNode: Node {
         return textView
     }
 
-    init(view: Text) {
-        super.init(view: view)
+    init(view: Text, viewIdentifier: ViewIdentifier) {
+        super.init(view: view, viewIdentifier: viewIdentifier)
     }
 }
 extension TextNode: RenderableNode {

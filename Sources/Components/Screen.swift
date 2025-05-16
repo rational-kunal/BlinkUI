@@ -7,8 +7,10 @@ struct Screen<Content>: View where Content: App {
 }
 
 extension Screen: NodeBuilder {
-    func buildNode() -> Node? {
-        ScreenNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        let node = ScreenNode(view: self, viewIdentifier: viewIdentifier)
+        node.environmentValues = EnvironmentValues()
+        return node
     }
 
     func childViews() -> [any View] {

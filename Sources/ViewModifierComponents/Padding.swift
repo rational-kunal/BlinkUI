@@ -19,8 +19,8 @@ private struct PaddingView<Content>: View where Content: View {
     let length: Int
 }
 extension PaddingView: NodeBuilder {
-    func buildNode() -> Node? {
-        PaddingNode(view: self)
+    func buildNode(viewIdentifier: ViewIdentifier) -> Node {
+        PaddingNode(view: self, viewIdentifier: viewIdentifier)
     }
 
     func childViews() -> [any View] {
@@ -36,8 +36,8 @@ private class PaddingNode<Content>: Node where Content: View {
         return paddingView
     }
 
-    init(view: PaddingView<Content>) {
-        super.init(view: view)
+    init(view: PaddingView<Content>, viewIdentifier: ViewIdentifier) {
+        super.init(view: view, viewIdentifier: viewIdentifier)
     }
 }
 extension PaddingNode: RenderableNode {

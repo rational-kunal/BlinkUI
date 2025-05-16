@@ -4,6 +4,7 @@ enum DemoScreen {
     case None
     case Counter
     case ZStackAndAlignment
+    case EnvironmentBorder
 }
 
 struct Example: App {
@@ -15,12 +16,17 @@ struct Example: App {
                 Button {
                     demoScreen = .Counter
                 } label: {
-                    Text("State")
+                    Text("State+Binding")
                 }
                 Button {
                     demoScreen = .ZStackAndAlignment
                 } label: {
                     Text("ZStack+Alignment")
+                }
+                Button {
+                    demoScreen = .EnvironmentBorder
+                } label: {
+                    Text("EnvironmentBorder")
                 }
             }
 
@@ -29,6 +35,8 @@ struct Example: App {
                     ZStackAndAlignmentExample()
                 } else if demoScreen == .Counter {
                     Counter()
+                } else if demoScreen == .EnvironmentBorder {
+                    EnvironmentBorderDemo()
                 } else {
                     SimpleInstructions()
                 }
@@ -64,10 +72,22 @@ struct ZStackAndAlignmentExample: View {
 }
 
 struct Counter: View {
-    @State var counter = 0
+    @State private var counter = 0
+
     var body: some View {
-        Text("Tapping on the button changes counter")
-        Text("Counter should also reset when this screen is removed from render tree")
+        VStack {
+            Text("Tapping on the button changes counter")
+            Text("Counter should also reset when this screen is removed from render tree")
+            CounterControls(counter: $counter)
+            Text("\(counter)").padding(.all, 5)
+        }
+    }
+}
+
+struct CounterControls: View {
+    @Binding var counter: Int
+
+    var body: some View {
         HStack {
             Button {
                 counter += 1
@@ -85,8 +105,88 @@ struct Counter: View {
                 Text("minus").padding(.horizontal)
             }
         }
+    }
+}
 
-        Text("\(counter)")
+enum Choices {
+    case A, B, C
+}
+
+struct ChoiceEnvironmentKey: EnvironmentKey {
+    static let defaultValue: Choices = .A
+}
+extension EnvironmentValues {
+    var choice: Choices {
+        get { self[ChoiceEnvironmentKey.self] }
+        set { self[ChoiceEnvironmentKey.self] = newValue }
+    }
+}
+
+struct EnvironmentBorderDemo: View {
+    @State var selectedChoice: Choices = .A
+    var body: some View {
+        VStack {
+            HStack {
+                Button(action: { selectedChoice = .A }) {
+                    Text("Choice A")
+                }
+                Button(action: { selectedChoice = .B }) {
+                    Text("Choice B")
+                }
+                Button(action: { selectedChoice = .C }) {
+                    Text("Choice C")
+                }
+            }
+
+            Text(
+                "Selecting a choice updates the environment, which reflects in the innermost consumer view"
+            )
+
+            Inner().environment(\.choice, selectedChoice)
+        }.frame(width: .infinity, height: .infinity)
+    }
+}
+
+struct Inner: View {
+    var body: some View {
+        VStack {
+            Text("Inner")
+            InnerInner()
+        }.padding(.horizontal).border(style: .dashed)
+    }
+}
+
+struct InnerInner: View {
+    var body: some View {
+        VStack {
+            Text("InnerInner")
+            InnerMost()
+        }.padding(.horizontal).border(style: .solid)
+    }
+}
+
+struct InnerMost: View {
+    var body: some View {
+        VStack {
+            Text("InnerMost")
+            EnvironmentConsumer()
+        }.padding(.horizontal).border(style: .rounded)
+    }
+}
+
+struct EnvironmentConsumer: View {
+    @Environment(\.choice) var envChoice: Choices
+
+    var body: some View {
+        VStack {
+            if envChoice == .A {
+                Text("Selected Choice: A")
+            } else if envChoice == .B {
+                Text("Selected Choice: B")
+            } else {
+                Text("Selected Choice: C")
+            }
+        }
     }
 }
 

@@ -35,6 +35,10 @@ public struct State<Value>: AnyState {
         }
     }
 
+    public var projectedValue: Binding<Value> {
+        return Binding(get: { wrappedValue }, set: { (newValue) in wrappedValue = newValue })
+    }
+
     // We can update this value internally
     let stateReference = StateReference()
 }
@@ -42,4 +46,25 @@ public struct State<Value>: AnyState {
 class StateReference {
     var stateIdentifier: StateIdentifier?
     weak var stateManager: StateManager?
+}
+
+@propertyWrapper
+public struct Binding<Value> {
+    private let getFromState: () -> Value
+    private let setToState: (Value) -> Void
+
+    public init(_ bindingValue: Binding<Value>) {
+        getFromState = bindingValue.getFromState
+        setToState = bindingValue.setToState
+    }
+
+    public init(get: @escaping () -> Value, set: @escaping (Value) -> Void) {
+        getFromState = get
+        setToState = set
+    }
+
+    public var wrappedValue: Value {
+        get { getFromState() }
+        nonmutating set { setToState(newValue) }
+    }
 }
