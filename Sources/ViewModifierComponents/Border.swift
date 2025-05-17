@@ -9,6 +9,7 @@ extension View {
 public enum BorderStyle {
     case solid
     case dashed
+    case dotted
     case rounded
     case double
 }
@@ -106,6 +107,8 @@ extension BorderNode: RenderableNode {
             return ("┌", "┐", "└", "┘", "─", "│")
         case .dashed:
             return ("┌", "┐", "└", "┘", "╌", "╎")
+        case .dotted:
+            return ("·", "·", "·", "·", "·", "·")
         case .rounded:
             return ("╭", "╮", "╰", "╯", "─", "│")
         case .double:
