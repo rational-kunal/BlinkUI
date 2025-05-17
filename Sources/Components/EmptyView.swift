@@ -8,4 +8,5 @@ extension EmptyView: NodeBuilder {
         return []
     }
 }
+
 class EmptyNode: Node {}

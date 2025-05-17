@@ -1,6 +1,6 @@
 import os
 
-class AppEngine {
+public class AppEngine {
     let app: any App
 
     let renderer: RenderEngine
