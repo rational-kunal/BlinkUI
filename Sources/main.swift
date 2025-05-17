@@ -5,6 +5,7 @@ enum DemoScreen {
     case Counter
     case ZStackAndAlignment
     case EnvironmentBorder
+    case Text
 }
 
 struct Example: App {
@@ -28,6 +29,11 @@ struct Example: App {
                 } label: {
                     Text("EnvironmentBorder")
                 }
+                Button {
+                    demoScreen = .Text
+                } label: {
+                    Text("Text")
+                }
             }
 
             VStack {
@@ -37,6 +43,8 @@ struct Example: App {
                     Counter()
                 } else if demoScreen == .EnvironmentBorder {
                     EnvironmentBorderDemo()
+                } else if demoScreen == .Text {
+                    TextDemo()
                 } else {
                     SimpleInstructions()
                 }
@@ -187,6 +195,17 @@ struct EnvironmentConsumer: View {
                 Text("Selected Choice: C")
             }
         }
+    }
+}
+
+struct TextDemo: View {
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Lorem ipsum dolor sit amet consectetur adipiscing elit quisque faucibus.")
+            Text(
+                "Lorem ipsum dolor sit amet consectetur adipiscing elit. Amet consectetur adipiscing elit quisque faucibus ex sapien. Quisque faucibus ex sapien vitae pellentesque sem placerat. Vitae pellentesque sem placerat in id cursus mi."
+            )
+        }.frame(alignment: .leading)
     }
 }
 
