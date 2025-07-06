@@ -63,6 +63,16 @@ extension ButtonNode: RenderableNode {
             context.terminal.draw(x: start.x + size.width - 1, y: y, symbol: focused ? "║" : "│")
         }
 
+        // TODO: Button tint color + background color support
+        // for x in 1..<Int(size.width - 1) {
+        //     for y in 1..<Int(size.height - 1) {
+        //         context.terminal.draw(
+        //             x: start.x + x, y: start.y + y,
+        //             fgColor: focused ? nil : .blue,
+        //             bgColor: focused ? .blue : nil)
+        //     }
+        // }
+
         // Render label
         self.renderableChildren.first?.render(
             context: context, start: (start.x + 1, start.y + 1),

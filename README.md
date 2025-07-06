@@ -2,7 +2,7 @@
 
 BlinkUI is an experimental terminal UI framework that brings SwiftUI's declarative syntax and component-based architecture to terminal applications. Build beautiful, interactive terminal UIs using familiar SwiftUI-like patterns.
 
-![BlinkUI_SimpleDemo](https://github.com/user-attachments/assets/5567be9d-2510-4e39-b430-ba380cc36a6f)
+![BlinkUI_SimpleDemo](https://github.com/user-attachments/assets/75c410a7-4b54-48a2-be01-7eb4c53841a9)
 
 > [!WARNING]  
 > This is an experimental project, currently in active development. While functional, it's not yet recommended for production use. Feedback and contributions are welcome!
@@ -11,6 +11,7 @@ BlinkUI is an experimental terminal UI framework that brings SwiftUI's declarati
 
 - **SwiftUI-like Syntax**: Write terminal UIs using familiar declarative syntax
 - **Rich Component Library**: Built-in components like Text, Button, HStack, VStack, and ZStack
+- **Color support**: Simple but effective foreground and background color support
 - **State Management**: Support for @State, @Binding, and @Environment property wrappers
 - **Focus Engine**: Keyboard navigation between interactive elements (Tab/Shift+Tab)
 - **View Modifiers**: Padding, borders, and frame customization
@@ -21,24 +22,34 @@ BlinkUI is an experimental terminal UI framework that brings SwiftUI's declarati
 ```swift
 import BlinkUI
 
-struct Example: App {
+struct Main: App {
     @State var isSelected: Bool = false
 
     var body: some View {
-        Text("This is your last chance. After this, there is no turning back.")
-        if !isSelected {
-            HStack {
-                Button(action: { isSelected = true }) { Text("Blue pill") }
-                Button(action: { isSelected = true }) { Text("Red pill") }
+        VStack(spacing: isSelected ? 1 : 0) {
+            Text("This is your last chance. After this, there is no turning back.")
+            if !isSelected {
+                HStack {
+                    Button(action: { isSelected = true }) {
+                        Text("Blue pill").color(.blue)
+                    }
+                    Button(action: { isSelected = true }) {
+                        Text("Red pill").color(.red)
+                    }
+                }
+            } else {
+                Text("The Matrix is everywhere. It is all around us.")
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 1)
+                    .color(.yellow)
+                    .backgroundColor(.black)
             }
-        } else {
-            Text("The Matrix is everywhere. It is all around us.")
         }
     }
 }
 
 // Run the app
-let engine = AppEngine(app: Example())
+let engine = AppEngine(app: Main())
 engine.run()
 ```
 
@@ -77,6 +88,16 @@ Interactive buttons with customizable labels and actions.
 <div>
 <img width="531" alt="ZStack Example" src="https://github.com/user-attachments/assets/28a27285-2deb-4d46-a0b5-1cfe0b413015" />
 </div>
+
+#### Color
+Set foreground and background colors for text components using the `color` and `backgroundColor` modifiers.
+```swift
+Text("Hello, World!")
+    .color(.red) // Sets foreground color
+    .backgroundColor(.blue) // Sets background color
+```
+
+<img width="544" alt="image" src="https://github.com/user-attachments/assets/07611dc1-c17c-46d2-8899-92f3b388bbee" />
 
 ### View Modifiers
 

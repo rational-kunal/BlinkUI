@@ -3,10 +3,19 @@ import os
 
 private let logger = Logger(subsystem: "com.rational.blinkui", category: "Terminal")
 
+struct Pixel: Sendable {
+    var char: Character
+    var fgColor: Color
+    var bgColor: Color
+}
+extension Pixel {
+    static let blank = Pixel(char: " ", fgColor: .default, bgColor: .default)
+}
+
 class Terminal {
 
     // MARK: - Canvas
-    private(set) var canvas: [[Character]] = TerminalHelper.makeCanvas()
+    private(set) var canvas: [[Pixel]] = TerminalHelper.makeCanvas()
     var canvasWidth: Int {
         canvas[0].count
     }
@@ -27,26 +36,53 @@ class Terminal {
     }
 
     func update() {
-        // Re-creating the canvas each time which does not seem like a good idea
         canvas = TerminalHelper.makeCanvas()
     }
 
     // Renders the canvas / frame on the terminal
     func render() {
         TerminalHelper.moveCursor(x: 0, y: 0)
+        var lastFg: Color = .default
+        var lastBg: Color = .default
         for row in canvas {
-            print(String(row))
+            for pixel in row {
+                if pixel.fgColor != lastFg {
+                    print(pixel.fgColor.ansiForeground, terminator: "")
+                    lastFg = pixel.fgColor
+                }
+                if pixel.bgColor != lastBg {
+                    print(pixel.bgColor.ansiBackground, terminator: "")
+                    lastBg = pixel.bgColor
+                }
+                print(pixel.char, terminator: "")
+            }
+            print()
         }
         fflush(stdout)
     }
 
-    // Draws the symbol at the given position
-    func draw(x: Int, y: Int, symbol: Character) {
+    // Draws the symbol at the given position with color
+    func draw(
+        x: Int, y: Int,
+        symbol: Character? = nil,
+        fgColor: Color? = nil, bgColor: Color? = nil
+    ) {
         guard x >= 0, x < canvasWidth, y >= 0, y < canvasHeight else {
             logger.error("Invalid coordinates: \(x), \(y)")
             return
         }
-        canvas[y][x] = symbol
+        var p = canvas[y][x]
+        if let symbol {
+            p.char = symbol
+        }
+        if let fgColor {
+            p.fgColor = fgColor
+        }
+        if let bgColor {
+            p.bgColor = bgColor
+        }
+
+        canvas[y][x] = p
     }
 }
 
@@ -75,10 +111,9 @@ private struct TerminalHelper {
         }
     }
 
-    // Create blank 2d buffer of blank characters
-    static func makeCanvas() -> [[Character]] {
+    static func makeCanvas() -> [[Pixel]] {
         let (width, height) = windowSize()
-        return Array(repeating: Array(repeating: " ", count: width), count: height)
+        return Array(repeating: Array(repeating: Pixel.blank, count: width), count: height)
     }
 
     // Enable alternate screen buffer (prevents scrolling & flickering)
