@@ -48,6 +48,11 @@ class Node: EnvironmentProvidable {
     func addChild(_ child: Node) {
         child.parent = self
         children.append(child)
+
+        // Transfer few properties to child
+        if charStyle != .none {
+            child.charStyle.insert(charStyle)
+        }
     }
 
     // Focus related
@@ -64,6 +69,15 @@ class Node: EnvironmentProvidable {
 
         assertionFailure("Failed to get environment values")
         return EnvironmentValues()
+    }
+
+    // Character style
+    var charStyle: CharStyle = .none
+}
+
+extension Node {
+    func draw(on terminal: Terminal, x: Int, y: Int, symbol: Character) {
+        terminal.draw(x: x, y: y, symbol: symbol, charStyle: charStyle)
     }
 }
 

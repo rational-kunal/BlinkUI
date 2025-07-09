@@ -27,5 +27,5 @@ struct Main: App {
 }
 
 // Run the app
-let engine = AppEngine(app: Example())
+let engine = AppEngine(app: CommandLine.arguments.contains("--example") ? Example() : Main())
 engine.run()

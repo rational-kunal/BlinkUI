@@ -7,9 +7,10 @@ struct Pixel: Sendable {
     var char: Character
     var fgColor: Color
     var bgColor: Color
+    var charStyle: CharStyle
 }
 extension Pixel {
-    static let blank = Pixel(char: " ", fgColor: .default, bgColor: .default)
+    static let blank = Pixel(char: " ", fgColor: .default, bgColor: .default, charStyle: .none)
 }
 
 class Terminal {
@@ -44,6 +45,7 @@ class Terminal {
         TerminalHelper.moveCursor(x: 0, y: 0)
         var lastFg: Color = .default
         var lastBg: Color = .default
+        var lastCharStyle: CharStyle = .none
         for row in canvas {
             for pixel in row {
                 if pixel.fgColor != lastFg {
@@ -54,18 +56,26 @@ class Terminal {
                     print(pixel.bgColor.ansiBackground, terminator: "")
                     lastBg = pixel.bgColor
                 }
+                if pixel.charStyle != lastCharStyle {
+                    print(pixel.charStyle.ansiCode, terminator: "")
+                    lastCharStyle = pixel.charStyle
+                }
                 print(pixel.char, terminator: "")
             }
-            print()
+            print("\u{001B}[0m")  // Reset at end of line
+            lastFg = .default
+            lastBg = .default
+            lastCharStyle = .none
         }
         fflush(stdout)
     }
 
-    // Draws the symbol at the given position with color
+    // Draws the symbol at the given position with color and charStyle
     func draw(
         x: Int, y: Int,
         symbol: Character? = nil,
-        fgColor: Color? = nil, bgColor: Color? = nil
+        fgColor: Color? = nil, bgColor: Color? = nil,
+        charStyle: CharStyle? = nil
     ) {
         guard x >= 0, x < canvasWidth, y >= 0, y < canvasHeight else {
             logger.error("Invalid coordinates: \(x), \(y)")
@@ -81,7 +91,9 @@ class Terminal {
         if let bgColor {
             p.bgColor = bgColor
         }
-
+        if let charStyle {
+            p.charStyle = charStyle
+        }
         canvas[y][x] = p
     }
 }

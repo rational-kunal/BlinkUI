@@ -82,6 +82,10 @@ extension TextNode: RenderableNode {
         if size.width >= textView.text.count {  // Enough width to have the text in one height
             for (index, char) in textView.text.enumerated() {
                 context.terminal.draw(x: start.x + index, y: start.y, symbol: char)
+                draw(
+                    on: context.terminal,
+                    x: start.x + index, y: start.y,
+                    symbol: char)
             }
             return
         }
@@ -91,6 +95,10 @@ extension TextNode: RenderableNode {
         if words.count == 1 {
             for (index, char) in textView.text.enumerated() {
                 context.terminal.draw(x: start.x + index, y: start.y, symbol: char)
+                draw(
+                    on: context.terminal,
+                    x: start.x + index, y: start.y,
+                    symbol: char)
             }
             return
         }
@@ -107,8 +115,10 @@ extension TextNode: RenderableNode {
                     // Truncate with ellipses if height exceeds available space
                     let truncatedWord = word.prefix(size.width - 1) + Ellipses
                     for (charIndex, char) in truncatedWord.enumerated() {
-                        context.terminal.draw(
-                            x: start.x + charIndex, y: start.y + currentHeight, symbol: char)
+                        draw(
+                            on: context.terminal,
+                            x: start.x + charIndex, y: start.y + currentHeight,
+                            symbol: char)
                     }
                     break
                 }
@@ -116,15 +126,18 @@ extension TextNode: RenderableNode {
 
             if currentHeight < size.height {
                 for (charIndex, char) in word.enumerated() {
-                    context.terminal.draw(
+                    draw(
+                        on: context.terminal,
                         x: start.x + currentWidth + charIndex, y: start.y + currentHeight,
                         symbol: char)
                 }
                 currentWidth += word.count
                 // Draw the word
                 if space > 0 {
-                    context.terminal.draw(
-                        x: start.x + currentWidth, y: start.y + currentHeight, symbol: " ")
+                    draw(
+                        on: context.terminal,
+                        x: start.x + currentWidth, y: start.y + currentHeight,
+                        symbol: " ")
                     currentWidth += 1
                 }
             }

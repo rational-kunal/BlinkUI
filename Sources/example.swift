@@ -95,7 +95,7 @@ struct Counter: View {
             Text("Tapping on the button changes counter")
             Text("Counter should also reset when this screen is removed from render tree")
             CounterControls(counter: $counter)
-            Text("\(counter)").padding(.all, 5)
+            Text("\(counter)").padding(.all, 5).bold()
         }
     }
 }
@@ -208,12 +208,30 @@ struct EnvironmentConsumer: View {
 
 struct TextDemo: View {
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 1) {
+            HStack {
+                Text("Bold").bold()
+                Text("Italic").italic()
+                Text("Underline").underline()
+                Text("Strikethrough").strikethrough()
+            }
+
+            HStack {
+                Text("All Bold").bold()
+                Text("Italic").italic()
+                Text("Underline").underline()
+                Text("Except").bold(false)
+                Text("Strikethrough").strikethrough()
+            }.bold()
+
             Text("Lorem ipsum dolor sit amet consectetur adipiscing elit quisque faucibus.")
             Text(
                 "Lorem ipsum dolor sit amet consectetur adipiscing elit. Amet consectetur adipiscing elit quisque faucibus ex sapien. Quisque faucibus ex sapien vitae pellentesque sem placerat. Vitae pellentesque sem placerat in id cursus mi."
             )
-        }.frame(alignment: .leading)
+
+        }
+        .padding()
+        .frame(alignment: .leading)
     }
 }
 
