@@ -3,6 +3,7 @@ public protocol EnvironmentKey {
     static var defaultValue: Value { get }
 }
 
+// TODO: CoW ??
 public struct EnvironmentValues {
     var values: [ObjectIdentifier: Any] = [:]
     public subscript<K: EnvironmentKey>(key: K.Type) -> K.Value {

@@ -1,3 +1,13 @@
+struct Pixel: Sendable {
+    var char: Character
+    var fgColor: Color
+    var bgColor: Color
+    var charStyle: CharStyle
+}
+extension Pixel {
+    static let blank = Pixel(char: " ", fgColor: .default, bgColor: .default, charStyle: .none)
+}
+
 public enum Color: Equatable, Sendable {
     case named(NamedColor)
     case rgb(r: UInt8, g: UInt8, b: UInt8)
@@ -14,14 +24,8 @@ public enum Color: Equatable, Sendable {
     public static let white: Color = .named(.white)
 
     public enum NamedColor: String, Sendable {
-        case black = "30"
-        case red = "31"
-        case green = "32"
-        case yellow = "33"
-        case blue = "34"
-        case magenta = "35"
-        case cyan = "36"
-        case white = "37"
+        case black = "30", red = "31", green = "32", yellow = "33", blue = "34", magenta = "35",
+            cyan = "36", white = "37"
     }
 
     var ansiForeground: String {
@@ -48,5 +52,25 @@ public enum Color: Equatable, Sendable {
         case .rgb(let r, let g, let b):
             return "\u{001B}[48;2;\(r);\(g);\(b)m"
         }
+    }
+}
+
+struct CharStyle: OptionSet, Sendable {
+    let rawValue: Int
+
+    static let bold = CharStyle(rawValue: 1 << 0)
+    static let italic = CharStyle(rawValue: 1 << 1)
+    static let underline = CharStyle(rawValue: 1 << 2)
+    static let strikethrough = CharStyle(rawValue: 1 << 3)
+    static let none: CharStyle = []
+
+    var ansiCode: String {
+        var codes: [String] = []
+        if contains(.bold) { codes.append("1") }
+        if contains(.italic) { codes.append("3") }
+        if contains(.underline) { codes.append("4") }
+        if contains(.strikethrough) { codes.append("9") }
+        if codes.isEmpty { return "\u{001B}[0m" }
+        return "\u{001B}[\(codes.joined(separator: ";"))m"
     }
 }

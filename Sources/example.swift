@@ -15,31 +15,11 @@ struct Example: App {
     var body: some View {
         VStack {
             HStack {
-                Button {
-                    demoScreen = .Counter
-                } label: {
-                    Text("State+Binding")
-                }
-                Button {
-                    demoScreen = .ZStackAndAlignment
-                } label: {
-                    Text("ZStack+Alignment")
-                }
-                Button {
-                    demoScreen = .EnvironmentBorder
-                } label: {
-                    Text("EnvironmentBorder")
-                }
-                Button {
-                    demoScreen = .Text
-                } label: {
-                    Text("Text")
-                }
-                Button {
-                    demoScreen = .Color
-                } label: {
-                    Text("Color")
-                }
+                Button("State+Binding") { demoScreen = .Counter }
+                Button("ZStack+Alignment") { demoScreen = .ZStackAndAlignment }
+                Button("EnvironmentBorder") { demoScreen = .EnvironmentBorder }
+                Button("Text") { demoScreen = .Text }
+                Button("Color") { demoScreen = .Color }
             }
 
             VStack {
@@ -105,21 +85,12 @@ struct CounterControls: View {
 
     var body: some View {
         HStack {
-            Button {
-                counter += 1
-            } label: {
-                Text("add").padding(.horizontal)
-            }
-            Button {
-                counter = 0
-            } label: {
-                Text("reset").padding(.horizontal)
-            }
-            Button {
-                counter -= 1
-            } label: {
-                Text("minus").padding(.horizontal)
-            }
+            Button("add") { counter += 1 }
+                .padding(.horizontal)
+            Button("reset") { counter = 0 }
+                .padding(.horizontal)
+            Button("minus") { counter -= 1 }
+                .padding(.horizontal)
         }
     }
 }
@@ -143,15 +114,9 @@ struct EnvironmentBorderDemo: View {
     var body: some View {
         VStack {
             HStack {
-                Button(action: { selectedChoice = .A }) {
-                    Text("Choice A")
-                }
-                Button(action: { selectedChoice = .B }) {
-                    Text("Choice B")
-                }
-                Button(action: { selectedChoice = .C }) {
-                    Text("Choice C")
-                }
+                Button("Choice A") { selectedChoice = .A }
+                Button("Choice B") { selectedChoice = .B }
+                Button("Choice C") { selectedChoice = .C }
             }
 
             Text(

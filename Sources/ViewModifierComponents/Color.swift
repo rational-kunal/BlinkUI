@@ -1,5 +1,3 @@
-import SwiftUI
-
 extension View {
     public func color(_ foregroundColor: Color) -> some View {
         modifier(ColorModifier(foregroundColor: foregroundColor, backgroundColor: nil))

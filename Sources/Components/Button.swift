@@ -6,6 +6,11 @@ public struct Button<Label>: View where Label: View {
         self.action = action
         self.label = label()
     }
+
+    init(_ title: String, action: @escaping () -> Void) where Label == Text {
+        self.action = action
+        self.label = Text("[\(title)]")
+    }
 }
 extension Button: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
@@ -39,43 +44,23 @@ extension ButtonNode: RenderableNode {
         assert(renderableChildren.count == 1)
         let labelNode = renderableChildren[0]
         let labelSize = labelNode.proposeViewSize(inSize: inSize)
-
-        // Add 1 for borders
-        return (width: labelSize.width + 2, height: labelSize.height + 2)
+        return (width: labelSize.width, height: labelSize.height)
     }
 
     func render(context: RenderContext, start: Point, size: Size) {
-        // TODO: Make this more flexible ???
-        // THe focusable rendering should not be responsibility of the element
-        // Render border
-        context.terminal.draw(x: start.x, y: start.y, symbol: focused ? "╔" : "┌")
-        context.terminal.draw(x: start.x + size.width - 1, y: start.y, symbol: focused ? "╗" : "┐")
-        context.terminal.draw(x: start.x, y: start.y + size.height - 1, symbol: focused ? "╚" : "└")
-        context.terminal.draw(
-            x: start.x + size.width - 1, y: start.y + size.height - 1, symbol: focused ? "╝" : "┘")
-
-        for x in (start.x + 1)..<(start.x + size.width - 1) {
-            context.terminal.draw(x: x, y: start.y, symbol: focused ? "═" : "─")
-            context.terminal.draw(x: x, y: start.y + size.height - 1, symbol: focused ? "═" : "─")
-        }
-        for y in (start.y + 1)..<(start.y + size.height - 1) {
-            context.terminal.draw(x: start.x, y: y, symbol: focused ? "║" : "│")
-            context.terminal.draw(x: start.x + size.width - 1, y: y, symbol: focused ? "║" : "│")
-        }
-
         // TODO: Button tint color + background color support
-        // for x in 1..<Int(size.width - 1) {
-        //     for y in 1..<Int(size.height - 1) {
-        //         context.terminal.draw(
-        //             x: start.x + x, y: start.y + y,
-        //             fgColor: focused ? nil : .blue,
-        //             bgColor: focused ? .blue : nil)
-        //     }
-        // }
+        for x in 0..<Int(size.width) {
+            for y in 0..<Int(size.height) {
+                context.terminal.draw(
+                    x: start.x + x, y: start.y + y,
+                    fgColor: focused ? nil : self.tintColor,
+                    bgColor: focused ? self.tintColor : nil)
+            }
+        }
 
         // Render label
         self.renderableChildren.first?.render(
-            context: context, start: (start.x + 1, start.y + 1),
-            size: (size.width - 2, size.height - 2))
+            context: context, start: start,
+            size: size)
     }
 }
