@@ -61,7 +61,9 @@ class FocusEngine {
         let focusedNodeFromNewTree = focusableNodes.first {
             $0.viewIdentifier == previouslyFocusedViewId
         }
-        self.focusedNode = focusedNodeFromNewTree
+        if focusedNode != self.focusedNode {
+            self.focusedNode = focusedNodeFromNewTree
+        }
     }
 
     // Doing DFS which is not idea

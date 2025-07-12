@@ -27,16 +27,3 @@ extension ConditionalView: NodeBuilder {
         return []
     }
 }
-
-class ConditionalNode<T, F>: Node where T: View, F: View {
-    static func == (lhs: ConditionalNode, rhs: ConditionalNode) -> Bool {
-        guard let lhsConditionalView = lhs.view as? ConditionalView<T, F>,
-            let rhsConditionalView = rhs.view as? ConditionalView<T, F>
-        else {
-            fatalError("Expected conditional view for \(lhs) and \(rhs)")
-        }
-
-        return lhs.viewIdentifier == rhs.viewIdentifier
-            && lhsConditionalView.viewCase == rhsConditionalView.viewCase
-    }
-}

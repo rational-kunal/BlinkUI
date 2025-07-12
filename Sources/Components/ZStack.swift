@@ -13,7 +13,7 @@ public struct ZStack<Content>: View where Content: View {
 
 extension ZStack: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        return ZStackNode(view: self, viewIdentifier: viewIdentifier)
+        return ZStackNode(viewIdentifier: viewIdentifier, alignment: alignment)
     }
 
     func childViews() -> [any View] {
@@ -21,16 +21,12 @@ extension ZStack: NodeBuilder {
     }
 }
 
-class ZStackNode<Content: View>: Node {
-    var zStackView: ZStack<Content> {
-        guard let view = view as? ZStack<Content> else {
-            fatalError("ZStackNode can only be used with ZStack")
-        }
-        return view
-    }
+class ZStackNode: Node {
+    let alignment: Alignment
 
-    init(view: ZStack<Content>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, alignment: Alignment) {
+        self.alignment = alignment
+        super.init(viewIdentifier: viewIdentifier)
     }
 }
 
@@ -55,7 +51,7 @@ extension ZStackNode: RenderableNode {
         for child in self.renderableChildren {
             let childIntrinsicSize = child.proposeViewSize(inSize: size)
             let offset = AlignmentUtility.calculateAlignmentOffset(
-                parentSize: size, childSize: childIntrinsicSize, alignment: zStackView.alignment)
+                parentSize: size, childSize: childIntrinsicSize, alignment: alignment)
             let childStart: Point = (
                 x: start.x + offset.x,
                 y: start.y + offset.y

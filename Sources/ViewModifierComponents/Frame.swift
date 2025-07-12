@@ -23,7 +23,8 @@ private struct FrameView<Content>: View where Content: View {
 
 extension FrameView: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        FrameNode(view: self, viewIdentifier: viewIdentifier)
+        FrameNode(
+            viewIdentifier: viewIdentifier, width: width, height: height, alignment: alignment)
     }
 
     func childViews() -> [any View] {
@@ -31,16 +32,16 @@ extension FrameView: NodeBuilder {
     }
 }
 
-private class FrameNode<Content>: Node where Content: View {
-    var frameView: FrameView<Content> {
-        guard let frameView = view as? FrameView<Content> else {
-            fatalError("FrameNode can only be used with Frame views")
-        }
-        return frameView
-    }
+private class FrameNode: Node {
+    let width: Int?
+    let height: Int?
+    let alignment: Alignment
 
-    init(view: FrameView<Content>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, width: Int?, height: Int?, alignment: Alignment) {
+        self.width = width
+        self.height = height
+        self.alignment = alignment
+        super.init(viewIdentifier: viewIdentifier)
     }
 }
 
@@ -54,10 +55,10 @@ extension FrameNode: RenderableNode {
 
         // Adjust the proposed size based on the frame's width and height
         let proposedSize = (
-            width: frameView.width == .infinity
-                ? inSize.width : (frameView.width ?? proposedChildViewSize.width),
-            height: frameView.height == .infinity
-                ? inSize.height : (frameView.height ?? proposedChildViewSize.height)
+            width: width == .infinity
+                ? inSize.width : (width ?? proposedChildViewSize.width),
+            height: height == .infinity
+                ? inSize.height : (height ?? proposedChildViewSize.height)
         )
 
         return (width: max(proposedSize.width, 0), height: max(proposedSize.height, 0))
@@ -70,7 +71,7 @@ extension FrameNode: RenderableNode {
         // Calculate the alignment offset
         let childSize = renderableChild.proposeViewSize(inSize: size)
         let offset = AlignmentUtility.calculateAlignmentOffset(
-            parentSize: size, childSize: childSize, alignment: frameView.alignment)
+            parentSize: size, childSize: childSize, alignment: alignment)
 
         // Render the child with the given size and alignment offset
         renderableChild.render(

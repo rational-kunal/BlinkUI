@@ -8,7 +8,7 @@ protocol NodeBuilder {
 
 extension NodeBuilder where Self: View {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        return Node(view: self, viewIdentifier: viewIdentifier)
+        return Node(viewIdentifier: viewIdentifier)
     }
     func childViews() -> [any View] { [] }
 }
@@ -26,7 +26,6 @@ protocol EnvironmentProvidable: AnyObject {
 class Node: EnvironmentProvidable {
     weak var parent: Node?
     let viewIdentifier: ViewIdentifier
-    var view: any View
     var children: [Node] = []
     var renderableChildren: [RenderableNode] {
         children.reduce(into: []) { partialResult, child in
@@ -38,10 +37,7 @@ class Node: EnvironmentProvidable {
         }
     }
 
-    var environmentValues: EnvironmentValues?
-
-    init(view: any View, viewIdentifier: ViewIdentifier) {
-        self.view = view
+    init(viewIdentifier: ViewIdentifier) {
         self.viewIdentifier = viewIdentifier
     }
 
@@ -50,13 +46,19 @@ class Node: EnvironmentProvidable {
         children.append(child)
     }
 
-    // Focus related
+    // Focus
     var focusable: Bool = false
     var focused: Bool = false
     func activate() {
 
     }
 
+    // Colors
+    var foregroundColor: Color?
+    var backgroundColor: Color?
+
+    // Environment
+    var environmentValues: EnvironmentValues?
     func getEnvironmentValues() -> EnvironmentValues {
         if let environmentValues = environmentValues ?? parent?.getEnvironmentValues() {
             return environmentValues
@@ -64,12 +66,6 @@ class Node: EnvironmentProvidable {
 
         assertionFailure("Failed to get environment values")
         return EnvironmentValues()
-    }
-}
-
-extension Node {
-    func draw(on terminal: Terminal, x: Int, y: Int, symbol: Character) {
-        terminal.draw(x: x, y: y, symbol: symbol, charStyle: charStyle)
     }
 }
 
@@ -81,7 +77,7 @@ extension Node: Equatable {
 }
 extension Node: CustomStringConvertible {
     var description: String {
-        var result = "Node (View: \(view), ViewIdentifier: \(viewIdentifier))\n"
+        var result = "Node (ViewIdentifier: \(viewIdentifier))\n"
         // for child in children {
         //     let childDescription = child.description
         //         .split(separator: "\n")

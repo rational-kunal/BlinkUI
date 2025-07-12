@@ -21,7 +21,7 @@ private struct SetEnvironmentView<Content, V>: View where Content: View {
 
 extension SetEnvironmentView: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        return SetEnvironmentNode(view: self, viewIdentifier: viewIdentifier)
+        return SetEnvironmentNode(viewIdentifier: viewIdentifier, keyPath: keyPath, value: value)
     }
 
     func childViews() -> [any View] {
@@ -29,16 +29,14 @@ extension SetEnvironmentView: NodeBuilder {
     }
 }
 
-private class SetEnvironmentNode<Content, V>: Node where Content: View {
-    var environmentView: SetEnvironmentView<Content, V> {
-        guard let environmentView = view as? SetEnvironmentView<Content, V> else {
-            fatalError("SetEnvironmentNode can only be used with environment views")
-        }
-        return environmentView
-    }
+private class SetEnvironmentNode<V>: Node {
+    let keyPath: WritableKeyPath<EnvironmentValues, V>
+    let value: V
 
-    init(view: SetEnvironmentView<Content, V>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, keyPath: WritableKeyPath<EnvironmentValues, V>, value: V) {
+        self.keyPath = keyPath
+        self.value = value
+        super.init(viewIdentifier: viewIdentifier)
     }
 
     override func getEnvironmentValues() -> EnvironmentValues {
@@ -47,7 +45,7 @@ private class SetEnvironmentNode<Content, V>: Node where Content: View {
         }
 
         var environmentValues = super.getEnvironmentValues()
-        environmentValues[keyPath: environmentView.keyPath] = environmentView.value
+        environmentValues[keyPath: keyPath] = value
         self.environmentValues = environmentValues
         return environmentValues
     }

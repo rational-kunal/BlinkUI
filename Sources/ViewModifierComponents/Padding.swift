@@ -20,7 +20,7 @@ private struct PaddingView<Content>: View where Content: View {
 }
 extension PaddingView: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        PaddingNode(view: self, viewIdentifier: viewIdentifier)
+        PaddingNode(viewIdentifier: viewIdentifier, edges: edges, length: length)
     }
 
     func childViews() -> [any View] {
@@ -28,16 +28,14 @@ extension PaddingView: NodeBuilder {
     }
 }
 
-private class PaddingNode<Content>: Node where Content: View {
-    var paddingView: PaddingView<Content> {
-        guard let paddingView = view as? PaddingView<Content> else {
-            fatalError("PaddingNode can only be used with Padding views")
-        }
-        return paddingView
-    }
+private class PaddingNode: Node {
+    let edges: EdgeSet
+    let length: Int
 
-    init(view: PaddingView<Content>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, edges: EdgeSet, length: Int) {
+        self.edges = edges
+        self.length = length
+        super.init(viewIdentifier: viewIdentifier)
     }
 }
 extension PaddingNode: RenderableNode {
@@ -48,11 +46,11 @@ extension PaddingNode: RenderableNode {
         // Adjust the input size by subtracting padding
         let adjustedInSize = (
             width: inSize.width
-                - (paddingView.edges.contains(.leading) ? paddingView.length : 0)
-                - (paddingView.edges.contains(.trailing) ? paddingView.length : 0),
+                - (edges.contains(.leading) ? length : 0)
+                - (edges.contains(.trailing) ? length : 0),
             height: inSize.height
-                - (paddingView.edges.contains(.top) ? paddingView.length : 0)
-                - (paddingView.edges.contains(.bottom) ? paddingView.length : 0)
+                - (edges.contains(.top) ? length : 0)
+                - (edges.contains(.bottom) ? length : 0)
         )
 
         // Get the proposed size from the child
@@ -61,11 +59,11 @@ extension PaddingNode: RenderableNode {
         // Adjust the proposed size by adding padding
         let proposedSize = (
             width: proposedChildViewSize.width
-                + (paddingView.edges.contains(.leading) ? paddingView.length : 0)
-                + (paddingView.edges.contains(.trailing) ? paddingView.length : 0),
+                + (edges.contains(.leading) ? length : 0)
+                + (edges.contains(.trailing) ? length : 0),
             height: proposedChildViewSize.height
-                + (paddingView.edges.contains(.top) ? paddingView.length : 0)
-                + (paddingView.edges.contains(.bottom) ? paddingView.length : 0)
+                + (edges.contains(.top) ? length : 0)
+                + (edges.contains(.bottom) ? length : 0)
         )
 
         return (width: max(proposedSize.width, 0), height: max(proposedSize.height, 0))
@@ -76,17 +74,17 @@ extension PaddingNode: RenderableNode {
         let renderableChild = renderableChildren[0]
 
         let adjustedStart = Point(
-            x: start.x + (paddingView.edges.contains(.leading) ? paddingView.length : 0),
-            y: start.y + (paddingView.edges.contains(.top) ? paddingView.length : 0)
+            x: start.x + (edges.contains(.leading) ? length : 0),
+            y: start.y + (edges.contains(.top) ? length : 0)
         )
 
         let adjustedSize = Size(
             width: size.width
-                - (paddingView.edges.contains(.leading) ? paddingView.length : 0)
-                - (paddingView.edges.contains(.trailing) ? paddingView.length : 0),
+                - (edges.contains(.leading) ? length : 0)
+                - (edges.contains(.trailing) ? length : 0),
             height: size.height
-                - (paddingView.edges.contains(.top) ? paddingView.length : 0)
-                - (paddingView.edges.contains(.bottom) ? paddingView.length : 0)
+                - (edges.contains(.top) ? length : 0)
+                - (edges.contains(.bottom) ? length : 0)
         )
 
         renderableChild.render(context: context, start: adjustedStart, size: adjustedSize)

@@ -15,7 +15,7 @@ public struct HStack<Content>: View where Content: View {
 
 extension HStack: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        return HStackNode(view: self, viewIdentifier: viewIdentifier)
+        return HStackNode(viewIdentifier: viewIdentifier, alignment: alignment, spacing: spacing)
     }
 
     func childViews() -> [any View] {
@@ -23,16 +23,14 @@ extension HStack: NodeBuilder {
     }
 }
 
-class HStackNode<Content: View>: Node {
-    var hStackView: HStack<Content> {
-        guard let view = view as? HStack<Content> else {
-            fatalError("HStackNode can only be used with HStack")
-        }
-        return view
-    }
+class HStackNode: Node {
+    let alignment: VerticalAlignment
+    let spacing: Int
 
-    init(view: HStack<Content>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, alignment: VerticalAlignment, spacing: Int) {
+        self.alignment = alignment
+        self.spacing = spacing
+        super.init(viewIdentifier: viewIdentifier)
     }
 }
 
@@ -48,7 +46,7 @@ extension HStackNode: RenderableNode {
         var availableWidth = inSize.width
 
         for (index, child) in self.renderableChildren.enumerated() {
-            let spacing = index < renderableChildren.count - 1 ? hStackView.spacing : 0
+            let spacing = index < renderableChildren.count - 1 ? spacing : 0
             let childSize = child.proposeViewSize(
                 inSize: (width: availableWidth, height: inSize.height))
             height = max(height, childSize.height)
@@ -67,7 +65,7 @@ extension HStackNode: RenderableNode {
             let childIntrinsicSize = child.proposeViewSize(
                 inSize: (width: availableWidth, height: size.height))
             let childStartY: Int =
-                switch hStackView.alignment {
+                switch alignment {
                 case .top:
                     start.y
                 case .center:
@@ -82,8 +80,8 @@ extension HStackNode: RenderableNode {
                 y: childStartY
             )
             child.render(context: context, start: childStart, size: childIntrinsicSize)
-            x += childIntrinsicSize.width + hStackView.spacing
-            availableWidth -= childIntrinsicSize.height + hStackView.spacing
+            x += childIntrinsicSize.width + spacing
+            availableWidth -= childIntrinsicSize.height + spacing
 
             if availableWidth <= 0 {
                 break  // Stop rendering if no more space is available

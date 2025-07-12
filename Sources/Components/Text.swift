@@ -10,7 +10,7 @@ public struct Text: View {
 
 extension Text: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        TextNode(view: self, viewIdentifier: viewIdentifier)
+        TextNode(viewIdentifier: viewIdentifier, text: text)
     }
 
     func childViews() -> [any View] {
@@ -19,16 +19,11 @@ extension Text: NodeBuilder {
 }
 
 class TextNode: Node {
-    var textView: Text {
-        guard let textView = view as? Text else {
-            fatalError("TextNode can only be used with Text views")
-        }
-        return textView
-    }
-    lazy var text: String = { textView.text }()
+    let text: String
 
-    init(view: Text, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, text: String) {
+        self.text = text
+        super.init(viewIdentifier: viewIdentifier)
     }
 }
 extension TextNode: RenderableNode {
@@ -38,8 +33,8 @@ extension TextNode: RenderableNode {
             return (width: 0, height: 0)  // Cant render so return empty frames
         }
 
-        if inSize.width >= textView.text.count {  // Enough width to have the text in one height
-            return (width: textView.text.count, height: 1)
+        if inSize.width >= text.count {  // Enough width to have the text in one height
+            return (width: text.count, height: 1)
         }
 
         let words: [String] = text.split(separator: " ").map { String($0) }
@@ -79,12 +74,11 @@ extension TextNode: RenderableNode {
             return  // Cant render
         }
 
-        if size.width >= textView.text.count {  // Enough width to have the text in one height
-            for (index, char) in textView.text.enumerated() {
-                context.terminal.draw(x: start.x + index, y: start.y, symbol: char)
+        if size.width >= text.count {  // Enough width to have the text in one height
+            for (index, char) in text.enumerated() {
                 draw(
-                    on: context.terminal,
-                    x: start.x + index, y: start.y,
+                    with: context,
+                    at: (start.x + index, start.y),
                     symbol: char)
             }
             return
@@ -93,12 +87,8 @@ extension TextNode: RenderableNode {
         let words: [String] = text.split(separator: " ").map { String($0) }
 
         if words.count == 1 {
-            for (index, char) in textView.text.enumerated() {
-                context.terminal.draw(x: start.x + index, y: start.y, symbol: char)
-                draw(
-                    on: context.terminal,
-                    x: start.x + index, y: start.y,
-                    symbol: char)
+            for (index, char) in text.enumerated() {
+                draw(with: context, at: (start.x + index, start.y), symbol: char)
             }
             return
         }
@@ -116,8 +106,7 @@ extension TextNode: RenderableNode {
                     let truncatedWord = word.prefix(size.width - 1) + Ellipses
                     for (charIndex, char) in truncatedWord.enumerated() {
                         draw(
-                            on: context.terminal,
-                            x: start.x + charIndex, y: start.y + currentHeight,
+                            with: context, at: (start.x + charIndex, start.y + currentHeight),
                             symbol: char)
                     }
                     break
@@ -127,16 +116,16 @@ extension TextNode: RenderableNode {
             if currentHeight < size.height {
                 for (charIndex, char) in word.enumerated() {
                     draw(
-                        on: context.terminal,
-                        x: start.x + currentWidth + charIndex, y: start.y + currentHeight,
+                        with: context,
+                        at: (start.x + currentWidth + charIndex, start.y + currentHeight),
                         symbol: char)
                 }
                 currentWidth += word.count
                 // Draw the word
                 if space > 0 {
                     draw(
-                        on: context.terminal,
-                        x: start.x + currentWidth, y: start.y + currentHeight,
+                        with: context,
+                        at: (start.x + currentWidth, start.y + currentHeight),
                         symbol: " ")
                     currentWidth += 1
                 }

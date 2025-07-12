@@ -14,7 +14,7 @@ public struct Button<Label>: View where Label: View {
 }
 extension Button: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        return ButtonNode(view: self, viewIdentifier: viewIdentifier)
+        return ButtonNode(viewIdentifier: viewIdentifier, action: action)
     }
 
     func childViews() -> [any View] {
@@ -22,21 +22,26 @@ extension Button: NodeBuilder {
     }
 }
 
-class ButtonNode<Label: View>: Node {
-    var buttonView: Button<Label> {
-        guard let view = view as? Button<Label> else {
-            fatalError("ButtonNode can only be used with Button")
-        }
-        return view
-    }
+class ButtonNode: Node {
+    let action: () -> Void
 
-    init(view: Button<Label>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, action: @escaping () -> Void) {
+        self.action = action
+        super.init(viewIdentifier: viewIdentifier)
         focusable = true
     }
 
+    override var foregroundColor: Color? {
+        get { focused ? super.foregroundColor : tintColor }
+        set { super.foregroundColor = newValue }
+    }
+    override var backgroundColor: Color? {
+        get { focused ? tintColor : super.backgroundColor }
+        set { super.backgroundColor = newValue }
+    }
+
     override func activate() {
-        buttonView.action()
+        action()
     }
 }
 extension ButtonNode: RenderableNode {
@@ -48,13 +53,9 @@ extension ButtonNode: RenderableNode {
     }
 
     func render(context: RenderContext, start: Point, size: Size) {
-        // TODO: Button tint color + background color support
         for x in 0..<Int(size.width) {
             for y in 0..<Int(size.height) {
-                context.terminal.draw(
-                    x: start.x + x, y: start.y + y,
-                    fgColor: focused ? nil : self.tintColor,
-                    bgColor: focused ? self.tintColor : nil)
+                draw(with: context, at: (start.x + x, start.y + y))
             }
         }
 

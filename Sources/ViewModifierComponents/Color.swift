@@ -25,7 +25,9 @@ private struct ColorView<Content>: View where Content: View {
 }
 extension ColorView: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        ColorNode(view: self, viewIdentifier: viewIdentifier)
+        ColorNode(
+            viewIdentifier: viewIdentifier,
+            foregroundColor: foregroundColor, backgroundColor: backgroundColor)
     }
 
     func childViews() -> [any View] {
@@ -33,16 +35,14 @@ extension ColorView: NodeBuilder {
     }
 }
 
-private class ColorNode<Content>: Node where Content: View {
-    var colorView: ColorView<Content> {
-        guard let colorView = view as? ColorView<Content> else {
-            fatalError("ColorNode can only be used with Color views")
-        }
-        return colorView
-    }
-
-    init(view: ColorView<Content>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+private class ColorNode: Node {
+    init(
+        viewIdentifier: ViewIdentifier,
+        foregroundColor: Color?, backgroundColor: Color?
+    ) {
+        super.init(viewIdentifier: viewIdentifier)
+        self.foregroundColor = foregroundColor
+        self.backgroundColor = backgroundColor
     }
 }
 
@@ -64,10 +64,7 @@ extension ColorNode: RenderableNode {
 
         for x in 0..<Int(size.width) {
             for y in 0..<Int(size.height) {
-                context.terminal.draw(
-                    x: start.x + x, y: start.y + y,
-                    fgColor: colorView.foregroundColor,
-                    bgColor: colorView.backgroundColor)
+                draw(with: context, at: (start.x + x, start.y + y))
             }
         }
 

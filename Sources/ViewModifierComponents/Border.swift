@@ -28,7 +28,7 @@ private struct BorderView<Content>: View where Content: View {
 }
 extension BorderView: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        BorderNode(view: self, viewIdentifier: viewIdentifier)
+        BorderNode(viewIdentifier: viewIdentifier, style: style)
     }
 
     func childViews() -> [any View] {
@@ -36,16 +36,12 @@ extension BorderView: NodeBuilder {
     }
 }
 
-private class BorderNode<Content>: Node where Content: View {
-    var borderView: BorderView<Content> {
-        guard let borderView = view as? BorderView<Content> else {
-            fatalError("BorderNode can only be used with Border views")
-        }
-        return borderView
-    }
+private class BorderNode: Node {
+    let style: BorderStyle
 
-    init(view: BorderView<Content>, viewIdentifier: ViewIdentifier) {
-        super.init(view: view, viewIdentifier: viewIdentifier)
+    init(viewIdentifier: ViewIdentifier, style: BorderStyle) {
+        self.style = style
+        super.init(viewIdentifier: viewIdentifier)
     }
 }
 
@@ -70,26 +66,26 @@ extension BorderNode: RenderableNode {
         assert(renderableChildren.count == 1, "There should be only one renderable child")
         let renderableChild = renderableChildren[0]
 
-        let borderSymbols = symbols(for: borderView.style)
+        let borderSymbols = symbols(for: style)
 
-        context.terminal.draw(x: start.x, y: start.y, symbol: borderSymbols.topLeft)
-        context.terminal.draw(
-            x: start.x + size.width - 1, y: start.y, symbol: borderSymbols.topRight)
-        context.terminal.draw(
-            x: start.x, y: start.y + size.height - 1, symbol: borderSymbols.bottomLeft)
-        context.terminal.draw(
-            x: start.x + size.width - 1, y: start.y + size.height - 1,
+        draw(with: context, at: start, symbol: borderSymbols.topLeft)
+        draw(with: context, at: (start.x + size.width - 1, start.y), symbol: borderSymbols.topRight)
+        draw(
+            with: context, at: (start.x, start.y + size.height - 1),
+            symbol: borderSymbols.bottomLeft)
+        draw(
+            with: context, at: (start.x + size.width - 1, start.y + size.height - 1),
             symbol: borderSymbols.bottomRight)
 
         for x in (start.x + 1)..<(start.x + size.width - 1) {
-            context.terminal.draw(x: x, y: start.y, symbol: borderSymbols.horizontal)
-            context.terminal.draw(
-                x: x, y: start.y + size.height - 1, symbol: borderSymbols.horizontal)
+            draw(with: context, at: (x, start.y), symbol: borderSymbols.horizontal)
+            draw(
+                with: context, at: (x, start.y + size.height - 1), symbol: borderSymbols.horizontal)
         }
 
         for y in (start.y + 1)..<(start.y + size.height - 1) {
-            context.terminal.draw(x: start.x, y: y, symbol: borderSymbols.vertical)
-            context.terminal.draw(x: start.x + size.width - 1, y: y, symbol: borderSymbols.vertical)
+            draw(with: context, at: (start.x, y), symbol: borderSymbols.vertical)
+            draw(with: context, at: (start.x + size.width - 1, y), symbol: borderSymbols.vertical)
         }
 
         let adjustedStart = Point(x: start.x + 1, y: start.y + 1)

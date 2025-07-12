@@ -8,7 +8,7 @@ struct Screen<Content>: View where Content: App {
 
 extension Screen: NodeBuilder {
     func buildNode(viewIdentifier: ViewIdentifier) -> Node {
-        let node = ScreenNode(view: self, viewIdentifier: viewIdentifier)
+        let node = ScreenNode(viewIdentifier: viewIdentifier)
         node.environmentValues = EnvironmentValues()
         return node
     }
