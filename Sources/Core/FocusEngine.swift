@@ -61,7 +61,7 @@ class FocusEngine {
         let focusedNodeFromNewTree = focusableNodes.first {
             $0.viewIdentifier == previouslyFocusedViewId
         }
-        if focusedNode != self.focusedNode {
+        if focusedNode !== focusedNodeFromNewTree {
             self.focusedNode = focusedNodeFromNewTree
         }
     }
