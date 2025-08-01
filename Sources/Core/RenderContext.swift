@@ -1,6 +1,10 @@
 class RenderContext {
     fileprivate let terminal: Terminal
 
+    // This is used to determine if the render engine should render the node
+    // Set this to true then in next cycle we will render the screen
+    var shouldRender: Bool = true
+
     init(terminal: Terminal) {
         self.terminal = terminal
     }

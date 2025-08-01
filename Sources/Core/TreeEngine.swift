@@ -40,6 +40,7 @@ class StateManager {
 
 class TreeEngine {
     let app: any App
+    unowned let engine: any AppEngineExtension
     lazy var rootNode = buildTree(fromRootView: app)
     var renderableRootNode: RenderableNode { rootNode as! RenderableNode }
     lazy var stateManager = StateManager(nodeStateDidUpdate: { [weak self] (viewIdentifier) in
@@ -48,14 +49,16 @@ class TreeEngine {
                 return
             }
             self.rootNode = self.buildTree(fromRootView: self.app)
+            self.engine.setShouldRender()
         }
     })
 
     var mapOfNodes: [ViewIdentifier: Node]
 
-    init(app: any App) {
+    init(app: any App, engine: AppEngineExtension) {
         self.app = app
         self.mapOfNodes = [ViewIdentifier: Node]()
+        self.engine = engine
     }
 
     // func renderTree(fromRootView rootView)
