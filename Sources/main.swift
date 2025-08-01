@@ -22,6 +22,10 @@ struct Main: App {
             }
         }
     }
+
+    func userWillExit() {
+        // This is called when the app is about to exit
+    }
 }
 
 // Run the app

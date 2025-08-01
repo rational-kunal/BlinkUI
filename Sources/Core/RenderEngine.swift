@@ -18,4 +18,8 @@ class RenderEngine {
 
         node.render(context: context, start: start, size: size)
     }
+
+    func cleanUp() {
+        terminal.stop()
+    }
 }
