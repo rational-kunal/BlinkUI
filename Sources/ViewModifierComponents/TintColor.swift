@@ -16,4 +16,5 @@ extension View {
 
 extension Node {
     var tintColor: Color { getEnvironmentValues().tintColor }
+    var tertiaryColor: Color { .cyan }
 }

@@ -52,6 +52,10 @@ class Node: EnvironmentProvidable {
     func activate() {
 
     }
+    // Returns if input is accepted
+    func userDidEnter(input: String) -> Bool {
+        false
+    }
 
     // Colors
     var foregroundColor: Color?

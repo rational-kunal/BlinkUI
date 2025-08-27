@@ -7,6 +7,7 @@ enum DemoScreen {
     case EnvironmentBorder
     case Text
     case Color
+    case Input
 }
 
 struct Example: App {
@@ -20,6 +21,7 @@ struct Example: App {
                 Button("EnvironmentBorder") { demoScreen = .EnvironmentBorder }
                 Button("Text") { demoScreen = .Text }
                 Button("Color") { demoScreen = .Color }
+                Button("Input") { demoScreen = .Input }
             }
 
             VStack {
@@ -33,6 +35,8 @@ struct Example: App {
                     TextDemo()
                 } else if demoScreen == .Color {
                     ColorDemo()
+                } else if demoScreen == .Input {
+                    InputDemo()
                 } else {
                     SimpleInstructions()
                 }
@@ -209,6 +213,20 @@ struct ColorDemo: View {
             Text("wonderful").color(.green).backgroundColor(.blue)
             Text("colors").color(.cyan).backgroundColor(.red)
             Text("!").color(.yellow).backgroundColor(.black)
+        }
+        .padding()
+    }
+}
+
+struct InputDemo: View {
+    @State private var inputText: String = ""
+
+    var body: some View {
+        VStack {
+            TextField("Enter text here", $inputText)
+                .border(style: .dashed)
+                .padding()
+            Text("You entered: \(inputText)")
         }
         .padding()
     }

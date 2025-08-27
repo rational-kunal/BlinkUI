@@ -43,11 +43,16 @@ class TreeEngine {
     unowned let engine: any AppEngineExtension
     lazy var rootNode = buildTree(fromRootView: app)
     var renderableRootNode: RenderableNode { rootNode as! RenderableNode }
+
+    let stateManagementSemaphore = DispatchSemaphore(value: 1)
     lazy var stateManager = StateManager(nodeStateDidUpdate: { [weak self] (viewIdentifier) in
         DispatchQueue.global(qos: .userInitiated).async {
             guard let self else {
                 return
             }
+
+            self.stateManagementSemaphore.wait()
+            defer { self.stateManagementSemaphore.signal() }
             self.rootNode = self.buildTree(fromRootView: self.app)
             self.engine.setShouldRender()
         }

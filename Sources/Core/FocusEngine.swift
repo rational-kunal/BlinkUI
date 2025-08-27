@@ -10,13 +10,14 @@ class FocusEngine {
     private var focusableNodes: [Node] = []  // Strong, really?
 
     func processInput(_ key: String) {
-        // is tab
-        if key == "\t" {
+        if key == "\t" || key == "\n" {  // "tab" or "enter"
             jumpToNextFocusableNode()
-        } else if key == " " {
-            activateFocusedNode()
         } else if key == "\u{1B}[Z" {  // "shift + tab"
             jumpToPreviousFocusableNode()
+        } else if focusedNode?.userDidEnter(input: key) ?? false {
+            // No-op; the node processed
+        } else if key == " " {  // space
+            activateFocusedNode()
         }
     }
 
