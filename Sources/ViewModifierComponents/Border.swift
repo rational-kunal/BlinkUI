@@ -50,10 +50,15 @@ extension BorderNode: RenderableNode {
         assert(renderableChildren.count == 1, "There should be only one renderable child")
         let renderableChild = renderableChildren[0]
 
-        let proposedChildViewSize = renderableChild.proposeViewSize(inSize: inSize)
-
         let additionalWidth = 2
         let additionalHeight = 2
+        let adjustedInSize = (
+            width: inSize.width - additionalWidth,
+            height: inSize.height - additionalHeight
+        )
+
+        let proposedChildViewSize = renderableChild.proposeViewSize(inSize: adjustedInSize)
+
         let proposedSize = (
             width: proposedChildViewSize.width + additionalWidth,
             height: proposedChildViewSize.height + additionalHeight
@@ -102,7 +107,7 @@ extension BorderNode: RenderableNode {
         case .solid:
             return ("┌", "┐", "└", "┘", "─", "│")
         case .dashed:
-            return ("┌", "┐", "└", "┘", "╌", "╎")
+            return ("┌", "┐", "└", "┘", "┄", "┊")
         case .dotted:
             return ("·", "·", "·", "·", "·", "·")
         case .rounded:

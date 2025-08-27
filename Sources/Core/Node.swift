@@ -81,7 +81,7 @@ extension Node: Equatable {
 }
 extension Node: CustomStringConvertible {
     var description: String {
-        var result = "Node (ViewIdentifier: \(viewIdentifier))\n"
+        var result = "\(type(of: self)) (ViewIdentifier: \(viewIdentifier))\n"
         // for child in children {
         //     let childDescription = child.description
         //         .split(separator: "\n")
